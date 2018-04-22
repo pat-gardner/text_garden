@@ -1,0 +1,26 @@
+1. Game interaction
+    a. **Plant seeds for characters 
+    b. **Harvest fully grown characters
+    c. **Sell unwanted chars for in-game $$$ 
+    d. Buy (special) seeds, upgrades, stationary
+    e. **See inventory of chars, seeds, powerups?
+    f. **Compose/send messages from grown chars
+    g. **View messages sent to them
+    h. Get special message styles (ie fancy stationary)
+    i. Upgrade garden (size, seed efficiency)
+
+
+2. Backend game logic
+    a. Seeds grow over time
+    b. Transmit messages
+    c. Track users' inventory
+    d. Seeds can grow into special characters
+
+3. Login/authentication
+    a. Must login with username/password
+    b. Use auth service?!?
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!! CODE===GOOD !!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!
