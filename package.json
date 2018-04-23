@@ -1,16 +1,28 @@
 {
-  "name": "text_garden",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "react": "^16.3.2",
-    "react-dom": "^16.3.2",
-    "react-scripts": "1.1.4"
-  },
+  "name": "text_garden_server",
+  "version": "1.0.0",
+  "description": "Serving your garden",
+  "main": "server.js",
+  "nprivate": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server.js",
+    "client": "cd client && npm start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://P_Gardner@bitbucket.org/cse330/spring2018-cp-group-444217-448194.git"
+  },
+  "author": "Patrick Gardner, Kevin Fu",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/cse330/spring2018-cp-group-444217-448194#readme",
+  "devDependencies": {
+    "concurrently": "^3.5.1",
+    "nodemon": "^1.17.3"
+  },
+  "dependencies": {
+    "babel-core": "^6.26.0",
+    "express": "^4.16.3"
   }
 }

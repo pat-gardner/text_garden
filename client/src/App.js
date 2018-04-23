@@ -3,6 +3,20 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
+  state = {response: 'no response'};
+
+  componentDidMount() {
+    this.callApi()
+	.then( res => this.setState( {response: res.msg} ) )
+	.catch(err => console.log(err) );
+  }
+
+  callApi = () => {
+	console.log('Sending req');
+	return fetch('/api', { accept: 'application/json' }).
+		then(res => res.json());
+  }
+
   render() {
     return (
       <div className="App">
@@ -11,8 +25,8 @@ class App extends Component {
           <h1 className="App-title">Welcome to React</h1>
         </header>
         <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
+          {this.state.response}
+	</p>
       </div>
     );
   }
