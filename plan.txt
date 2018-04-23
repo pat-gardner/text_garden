@@ -1,7 +1,7 @@
 1. Game interaction
-    a. **Plant seeds for characters 
+    a. **Plant seeds for characters
     b. **Harvest fully grown characters
-    c. **Sell unwanted chars for in-game $$$ 
+    c. **Sell unwanted chars for in-game $$$
     d. Buy (special) seeds, upgrades, stationary
     e. **See inventory of chars, seeds, powerups?
     f. **Compose/send messages from grown chars
@@ -19,6 +19,32 @@
 3. Login/authentication
     a. Must login with username/password
     b. Use auth service?!?
+
+
+
+Database:
+    1. Users:
+        a. Username (unique)
+        b. Hashed password
+        c. Plots [link 1+]
+        d. Inventory [Link 0+]
+
+    2. Plot
+        a. Crop [link 1]
+        b. Stage of growth
+        c. Plant time (?)
+
+    3. Items
+        a. Name
+        b. Image
+        c. Properties (attached functions?)
+
+    4. Crop
+        a. Name
+        b. Images for all stages (string)
+        c. Growth cooldown
+        d. Rarity (?)
+
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!
