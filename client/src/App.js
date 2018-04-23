@@ -12,9 +12,9 @@ class App extends Component {
   }
 
   callApi = () => {
-	console.log('Sending req');
-	return fetch('/api', { accept: 'application/json' }).
-		then(res => res.json());
+	//console.log('Sending req');
+	return fetch('/api', { accept: 'application/json' })
+		.then(res => res.json());
   }
 
   render() {
