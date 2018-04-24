@@ -3,6 +3,8 @@ import Plot from './Plot.js';
 import axios from 'axios'
 import './App.css';
 
+const NUM_PLOTS = 9;
+
 class Garden extends React.Component {
     constructor(props) {
         super(props);
@@ -20,7 +22,12 @@ class Garden extends React.Component {
         axios.get('/updateGarden')
             .then( (res) => {
                 if(res.data.status) {
-                    this.setState({ plots: res.data });
+                    var arr = Array(NUM_PLOTS).fill(" ");
+                    res.data.msg.forEach( (item, i) => {
+                        arr[i] = item;
+                    });
+
+                    this.setState({ plots: arr });
                 }
             })
             .catch( (err) => {

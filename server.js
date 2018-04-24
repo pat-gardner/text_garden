@@ -82,21 +82,21 @@ app.post('/createuser', function(req, res) {
 			var plot = new Plot({
 				crop: crop._id
 			});
-			var plotArr = Array(NUM_PLOTS);
-			plotArr[4] = plot;
-			var user = new User({
-				username: req.body.user,
-				password: hash,
-				plots: plotArr
-			});
-			user.save(function(err) {
-				if (err) {
-					res.send(err);
-				}
-				req.session.user = req.body.user;
-				req.session.save();
-				console.log('Just saved ' + req.session.user);
-				res.json({ message: 'User successfully added!' });
+			plot.save(function(err, plot) {
+				var user = new User({
+					username: req.body.user,
+					password: hash,
+					plots: [plot._id]
+				});
+				user.save(function(err) {
+					if (err) {
+						res.send(err);
+					}
+					req.session.user = req.body.user;
+					req.session.save();
+					console.log('Just saved ' + req.session.user);
+					res.json({ message: 'User successfully added!' });
+				});
 			});
 		});
 	});
@@ -105,35 +105,34 @@ app.post('/createuser', function(req, res) {
 
 app.get('/updateGarden', (req, res) => {
 	//TODO: dynamic response based on session and DB
-	var username = req.body.user;
+	var username = req.session.user;
 	console.log('Updating garden for user: ' + username);
 	if (username == null) {
 		res.json({status: false});
 		return;
 	}
 
-	// User.findOne({ username: username })
-	// .populate('inventory')
-	// .populate(plots.crop)
-	// .exec(function(err, user) {
-	// 	console.log(user.plots);
-	// 	if(user == null) {
-	// 		res.json({status: false});
-	// 	}
-	// 	let result = user.plots.map( (plot, i) => plot.crop.images[plot.growth] );
-	// 	res.json({
-	// 		status: true,
-	// 		plots: result
-	// 	});
-	// });
+	User.findOne({ username: username })
+	.populate('inventory')
+	.populate({
+		path: 'plots',
+		populate: {path: 'crop'}
+	})
+	.exec(function(err, user) {
+		console.log(user);
+		if(user == null) {
+			res.json({status: false});
+		}
+		let result = user.plots.map( (plot, i) => {
+			// console.log(plot);
+			return plot == null ? " " : plot.crop.images[plot.growth];
+		});
+		res.json({
+			status: true,
+			msg: result
+		});
+	});
 
-	res.json({
-		status: true,
-		data: [
-			"A", " ", "B",
-			" ", "C", "D",
-			"E", " ", " "
-	]});
 });
 
 

@@ -19,7 +19,7 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
-    plots: [PlotSchema],
+    plots: [ { type: Schema.Types.ObjectId, ref: 'Plot' } ],
     inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
 });
 
