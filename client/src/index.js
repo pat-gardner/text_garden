@@ -6,7 +6,7 @@ import LoginControl from './LoginControl.js';
 // import registerServiceWorker from './registerServiceWorker';
 
 ReactDOM.render(
-    <div> <LoginControl url='http://localhost:5000/' />
+    <div> <LoginControl url='/' />
     <App /> </div>,
     document.getElementById('root')
 );

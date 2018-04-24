@@ -14,6 +14,7 @@ db.once('open', () => console.log('Connected to MLab') );
 var app = express();
 
 app.set('port', 5000);
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(session({
@@ -22,6 +23,7 @@ app.use(session({
 	resave: false,
 	saveUninitialized: true
 }));
+/*
 app.use(function(req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -31,9 +33,9 @@ app.use(function(req, res, next) {
   res.setHeader('Cache-Control', 'no-cache');
   next();
 });
+*/
 
-
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
 	//console.log('Got a request');
 	res.json( {msg: 'You reached the server'} );
 });
@@ -52,7 +54,15 @@ app.post('/getuser', function(req, res) {
 		if (err) {
 			res.send(err);
 		}
+		if(user === null) {
+			console.log('no user found');
+			res.json({result: false});
+			return;
+		}
 		bcrypt.compare(req.body.pass, user.password, function(err, result){
+			if(err) {
+				res.send({"result": false});
+			}
 			if(result){
 				res.send({"result": true});
 				req.session.user = req.body.user;
@@ -64,12 +74,15 @@ app.post('/getuser', function(req, res) {
 		});
 	});
 });
+
 app.post('/createuser', function(req, res) {
 	var user = new User();
 	//body parser lets us use the req.body
 	bcrypt.hash(req.body.pass, 10, function(err, hash) {
-		user.user = req.body.user;
-		user.pass = hash;
+		var user = new User({
+			username: req.body.user,
+			password: hash
+		})
 		user.save(function(err) {
 			if (err) {
 				res.send(err);

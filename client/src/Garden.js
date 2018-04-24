@@ -10,7 +10,7 @@ class Garden extends React.Component {
     }
 
     componentDidMount() {
-        this.refreshTimer = setInterval( () => this.tick(), 20000 );
+        this.refreshTimer = setInterval( () => this.tick(), 5000 );
     }
     componentWillUnmount() {
         clearInterval(this.refreshTimer);
