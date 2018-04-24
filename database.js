@@ -5,7 +5,7 @@ var PlotSchema = new Schema({
 	// owner: { type: Schema.Types.ObjectId, ref: 'User' },
     crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
     growth: { type: Number, default: 0 },
-    plantTime: { type: Date, default: Date.now }
+    lastUpdated: { type: Date, default: Date.now }
 });
 
 var UserSchema = new Schema({

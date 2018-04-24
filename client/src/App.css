@@ -44,4 +44,5 @@
     background-color: #990000;
     border: 1px solid black;
     text-align: center;
+    white-space: pre-line;
 }

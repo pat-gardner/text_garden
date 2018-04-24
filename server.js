@@ -4,12 +4,15 @@ var session = require('express-session');
 var bodyParser = require('body-parser');
 var bcrypt = require('bcrypt');
 
-var db = require('./database.js')();
+require('./database.js')();
 
 mongoose.connect('mongodb://pat:patpass@ds255889.mlab.com:55889/fake_garden');
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => console.log('Connected to MLab') );
+
+var growCrops = require('./gameTimers.js');
+setInterval(growCrops, 1000);
 
 var app = express();
 
@@ -20,7 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(session({
 	secret: 'a4f8071f-c873-4447-8ee2',
-	cookie: { maxAge: 2628000000, secure: false},
+	cookie: { maxAge: 3600*24*7, secure: false},
 	resave: false,
 	saveUninitialized: true
 }));
@@ -104,7 +107,6 @@ app.post('/createuser', function(req, res) {
 
 
 app.get('/updateGarden', (req, res) => {
-	//TODO: dynamic response based on session and DB
 	var username = req.session.user;
 	console.log('Updating garden for user: ' + username);
 	if (username == null) {
