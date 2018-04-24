@@ -10,16 +10,18 @@ class Garden extends React.Component {
     }
 
     componentDidMount() {
-        this.refreshTimer = setInterval( () => this.tick(), 5000 );
+        this.timer = setInterval( () => this.tick(), 5000 );
     }
     componentWillUnmount() {
-        clearInterval(this.refreshTimer);
+        clearInterval(this.timer);
     }
 
     tick() {
         axios.get('/updateGarden')
             .then( (res) => {
-                this.setState({ plots: res.data });
+                if(res.data.status) {
+                    this.setState({ plots: res.data });
+                }
             })
             .catch( (err) => {
                 console.log(err);

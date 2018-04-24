@@ -14,6 +14,7 @@ db.once('open', () => console.log('Connected to MLab') );
 var app = express();
 
 app.set('port', 5000);
+const NUM_PLOTS = 9;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -54,8 +55,7 @@ app.post('/getuser', function(req, res) {
 		if (err) {
 			res.send(err);
 		}
-		if(user === null) {
-			console.log('no user found');
+		if(user == null) {
 			res.json({result: false});
 			return;
 		}
@@ -76,18 +76,28 @@ app.post('/getuser', function(req, res) {
 });
 
 app.post('/createuser', function(req, res) {
-	var user = new User();
 	//body parser lets us use the req.body
 	bcrypt.hash(req.body.pass, 10, function(err, hash) {
-		var user = new User({
-			username: req.body.user,
-			password: hash
-		})
-		user.save(function(err) {
-			if (err) {
-				res.send(err);
-			}
-			res.json({ message: 'User successfully added!' });
+		Crop.findOne({name: 'letterA'}).exec(function(err, crop) {
+			var plot = new Plot({
+				crop: crop._id
+			});
+			var plotArr = Array(NUM_PLOTS);
+			plotArr[4] = plot;
+			var user = new User({
+				username: req.body.user,
+				password: hash,
+				plots: plotArr
+			});
+			user.save(function(err) {
+				if (err) {
+					res.send(err);
+				}
+				req.session.user = req.body.user;
+				req.session.save();
+				console.log('Just saved ' + req.session.user);
+				res.json({ message: 'User successfully added!' });
+			});
 		});
 	});
 });
@@ -95,23 +105,35 @@ app.post('/createuser', function(req, res) {
 
 app.get('/updateGarden', (req, res) => {
 	//TODO: dynamic response based on session and DB
-	var username = "pat"; //TODO: change to session.user
+	var username = req.body.user;
+	console.log('Updating garden for user: ' + username);
+	if (username == null) {
+		res.json({status: false});
+		return;
+	}
 
 	// User.findOne({ username: username })
 	// .populate('inventory')
 	// .populate(plots.crop)
 	// .exec(function(err, user) {
 	// 	console.log(user.plots);
-	// 	let result = user.plots.map( (plot, i) => {
-	// 		return plot.crop.images[plot.growth];
-	// 	})
+	// 	if(user == null) {
+	// 		res.json({status: false});
+	// 	}
+	// 	let result = user.plots.map( (plot, i) => plot.crop.images[plot.growth] );
+	// 	res.json({
+	// 		status: true,
+	// 		plots: result
+	// 	});
 	// });
 
-	res.json([
-		"A", " ", "B",
-		" ", "C", "D",
-		"E", " ", " "
-	]);
+	res.json({
+		status: true,
+		data: [
+			"A", " ", "B",
+			" ", "C", "D",
+			"E", " ", " "
+	]});
 });
 
 

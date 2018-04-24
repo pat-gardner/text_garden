@@ -1,6 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var PlotSchema = new Schema({
+	// owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
+    growth: { type: Number, default: 0 },
+    plantTime: { type: Date, default: Date.now }
+});
+
 var UserSchema = new Schema({
 	username: {
         type: String,
@@ -14,13 +21,6 @@ var UserSchema = new Schema({
     },
     plots: [PlotSchema],
     inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
-});
-
-var PlotSchema = new Schema({
-	owner: { type: Schema.Types.ObjectId, ref: 'User' },
-    crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
-    growth: { type: Number, default: 0 },
-    plantTime: { type: Date, default: Date.now }
 });
 
 var ItemSchema = new Schema ({
