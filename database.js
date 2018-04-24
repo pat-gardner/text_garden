@@ -1,6 +1,13 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var PlotSchema = new Schema({
+	owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
+    growth: { type: Number, default: 0 },
+    plantTime: { type: Date, default: Date.now }
+});
+
 var UserSchema = new Schema({
 	username: {
         type: String,
@@ -16,12 +23,6 @@ var UserSchema = new Schema({
     inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
 });
 
-var PlotSchema = new Schema({
-	owner: { type: Schema.Types.ObjectId, ref: 'User' },
-    crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
-    growth: { type: Number, default: 0 },
-    plantTime: { type: Date, default: Date.now }
-});
 
 var ItemSchema = new Schema ({
     name: String,
@@ -36,14 +37,23 @@ var CropSchema = new Schema({
     rarity: { type: Number, default: 1} //TODO: figure this out
 });
 
+var MessageSchema = new Schema({
+	sender: String,
+	target: String,
+	message: String,
+	unread: Boolean
+});
+
 var User = mongoose.model('User', UserSchema);
 var Plot = mongoose.model('Plot', PlotSchema);
 var Item = mongoose.model('Item', ItemSchema);
 var Crop = mongoose.model('Crop', CropSchema);
+var Message = mongoose.model('Message', MessageSchema);
 
 module.exports = function() {
     this.User = User;
     this.Plot = Plot;
     this.Item = Item;
     this.Crop = Crop;
+		this.Message = Message;
 }

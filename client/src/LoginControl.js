@@ -9,37 +9,63 @@ class LoginControl extends Component {
     super(props);
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
     this.handleCreateUserSubmit = this.handleCreateUserSubmit.bind(this);
+    this.handleLogout = this.handleLogout.bind(this);
+
     axios.defaults.withCredentials = true;
+
+    this.state = {isLoggedIn: false};
+  }
+  componentDidMount() {
+    axios.post(this.props.url+'checkLoggedIn').then(res=>{
+      console.log('User is logged in:' + res.data.result);
+      this.setState ({isLoggedIn: res.data.result});
+    })
   }
   handleLoginSubmit(data) {
     axios.post(this.props.url+'getuser',data)
     .then(res => {
       if (res.data.result){
         console.log('login succeed')
-        /*TODO*/
+        this.setState ({isLoggedIn: true});
       }
     })
+  }
 
+  handleLogout(){
+    console.log('logout');
+    axios.post(this.props.url+'logout');
+    this.setState({isLoggedIn: false});
   }
   handleCreateUserSubmit(data) {
+    this.setState ({isLoggedIn: true});
     axios.post(this.props.url+'createuser', data)
     .catch(err => {
       console.error(err);
     });
   }
   render() {
-    return (
-      <div>
-        <div>
-          <h1>Please log in</h1>
-          <LoginForm onLoginSubmit={ this.handleLoginSubmit }/>
-        </div>
-        <div>
-          <h1>Create User</h1>
-          <CreateUserForm onCreateUserSubmit={ this.handleCreateUserSubmit }/>
-        </div>
-      </div>
+    if (this.state.isLoggedIn){
+      return(
+        <button className="logout" onClick={this.handleLogout}>
+        Logout
+      </button>
     );
+    }
+    else{
+      return (
+        <div>
+          <div>
+            <h1>Please log in</h1>
+            <LoginForm onLoginSubmit={ this.handleLoginSubmit }/>
+          </div>
+          <div>
+            <h1>Create User</h1>
+            <CreateUserForm onCreateUserSubmit={ this.handleCreateUserSubmit }/>
+          </div>
+        </div>
+      );
+    }
+
   }
 }
 

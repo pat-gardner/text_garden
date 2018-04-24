@@ -9,13 +9,13 @@ const style = {
  textAlign:'center',
  textTransform:'uppercase'
  },
- commentList: {
+ messageList: {
  border:'1px solid #f1f1f1',
  padding:'0 12px',
  maxHeight:'70vh',
  overflow:'scroll'
  },
- comment: {
+ message: {
  backgroundColor:'#fafafa',
  margin:'10px',
  padding:'3px 10px',

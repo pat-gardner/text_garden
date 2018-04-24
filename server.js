@@ -74,9 +74,62 @@ app.post('/getuser', function(req, res) {
 		});
 	});
 });
-
+app.post('/sendMessage', function(req, res){
+  if(req.session.user === null || req.session.user === undefined){
+    console.log('not logged in');
+  }
+  else{
+    var message = new Message({
+      sender: req.session.user,
+      target: req.body.target,
+      message: req.body.message,
+      unread: true
+    });
+    message.save(function(err) {
+			if (err) {
+        console.log(err);
+				res.send(err);
+			}
+			res.json({ message: 'Message successfully added!' });
+		});
+  }
+});
+app.get('/newMessages', function(req, res){
+  Message.find({'target': req.session.user, 'unread':true}, function(err, messages){
+    if(err) {
+      res.send(err);
+    }
+    console.log(messages);
+    res.send({'number':messages.length});
+  });
+});
+app.get('/getMessages', function(req, res){
+  Message.find({'target': req.session.user}, function(err, messages){
+    if(err) {
+      res.send(err);
+    }
+    console.log(messages);
+    res.send({'data':messages});
+  });
+});
+app.post('/checkLoggedIn', function(req, res){
+  console.log('user' + req.session.user)
+  if(req.session.user === null || req.session.user === undefined){
+    res.send({"result": false});
+  }
+  else{
+    res.send({"result": true});
+  }
+});
+app.post('/logout', function(req, res){
+  req.session.user = null;
+  req.session.save();
+  console.log('logout');
+});
 app.post('/createuser', function(req, res) {
-	var user = new User();
+  req.session.user = req.body.user;
+  req.session.save();
+	//var user = new User();
 	//body parser lets us use the req.body
 	bcrypt.hash(req.body.pass, 10, function(err, hash) {
 		var user = new User({
