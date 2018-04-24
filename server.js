@@ -77,6 +77,7 @@ app.post('/getuser', function(req, res) {
 		});
 	});
 });
+
 app.post('/sendMessage', function(req, res){
   if(req.session.user === null || req.session.user === undefined){
     console.log('not logged in');
@@ -102,19 +103,19 @@ app.get('/newMessages', function(req, res){
     if(err) {
       res.send(err);
     }
-    console.log(messages);
     res.send({'number':messages.length});
   });
 });
+
 app.get('/getMessages', function(req, res){
   Message.find({'target': req.session.user}, function(err, messages){
     if(err) {
       res.send(err);
     }
-    console.log(messages);
     res.send({'data':messages});
   });
 });
+
 app.post('/checkLoggedIn', function(req, res){
   console.log('user' + req.session.user)
   if(req.session.user === null || req.session.user === undefined){
@@ -124,11 +125,13 @@ app.post('/checkLoggedIn', function(req, res){
     res.send({"result": true});
   }
 });
+
 app.post('/logout', function(req, res){
   req.session.user = null;
   req.session.save();
   console.log('logout');
 });
+
 app.post('/createuser', function(req, res) {
 	//body parser lets us use the req.body
 	bcrypt.hash(req.body.pass, 10, function(err, hash) {
@@ -155,7 +158,7 @@ app.post('/createuser', function(req, res) {
 		});
 	});
 });
-console.log(User.schema.tree);
+
 //User wants to harvest a letter
 //Check if they have a fully grown plot with that letter,
 //and then add it to their inventory
@@ -184,18 +187,21 @@ app.post('/harvest', (req,res) => {
 			var matchingPlots = user.plots.filter(plot => {
 				return (plot.crop.name === cropName ) && (plot.growth === 2);
 			});
-			console.log('Matches: ');
-			console.log(matchingPlots);
 			if(matchingPlots.length === 0) {
 				res.json({status: false});
 				return;
 			}
 
-			Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
-				console.log('Removed plot for ' + user.username);
-				console.log('Plot was: ' + plot);
-				if(err) console.log('Err harvesting: ' + err);
-			});
+			user.plots.pull(matchingPlots[0]._id);
+
+			// Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
+			// 	console.log('Removed plot was: ' + plot);
+			// 	console.log('User is ' + user);
+			// 	if(err) {
+			// 		console.log('Err harvesting: ' + err);
+			// 		return;
+			// 	}
+			// });
 
 			user.inventory.push(cropName);
 			user.save();
@@ -205,14 +211,13 @@ app.post('/harvest', (req,res) => {
 
 app.get('/updateGarden', (req, res) => {
 	var username = req.session.user;
-	// console.log('Updating garden for user: ' + username);
+	console.log('Updating garden for user: ' + username);
 	if (username == null) {
 		res.json({status: false});
 		return;
 	}
 
 	User.findOne({ username: username }, 'plots inventory')
-	.populate('inventory')
 	.populate({
 		path: 'plots',
 		populate: {path: 'crop'}

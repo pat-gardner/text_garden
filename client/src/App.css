@@ -41,7 +41,7 @@
     flex: 0 0 30%;
     height: 30%;
     margin-bottom: 5px;
-    background-color: #990000;
+    /* background-color: #990000; */
     border: 1px solid black;
     text-align: center;
     white-space: pre-line;
