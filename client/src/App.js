@@ -14,7 +14,7 @@ class App extends Component {
 
     callApi = () => {
         //console.log('Sending req');
-        return fetch('/api', { accept: 'application/json' })
+        return fetch('/', { accept: 'application/json' })
         .then(res => res.json());
     }
 
