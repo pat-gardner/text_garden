@@ -2,10 +2,9 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var PlotSchema = new Schema({
-	owner: { type: Schema.Types.ObjectId, ref: 'User' },
     crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
     growth: { type: Number, default: 0 },
-    plantTime: { type: Date, default: Date.now }
+    lastUpdated: { type: Date, default: Date.now }
 });
 
 var UserSchema = new Schema({
@@ -19,8 +18,9 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
-    plots: [PlotSchema],
-    inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
+    plots: [ { type: Schema.Types.ObjectId, ref: 'Plot' } ],
+    inventory: [String] //Stores the chars the user has harvested
+    // inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
 });
 
 

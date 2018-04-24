@@ -21,7 +21,9 @@ class Plot extends React.Component {
     }
 
     handleClick(e) {
-        console.log(e.type);
+        if(this.props.growth === 2) {
+            this.props.harvest();
+        }
     }
 }
 
