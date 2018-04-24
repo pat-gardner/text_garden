@@ -1,9 +1,4 @@
 var mongoose = require('mongoose');
-
-mongoose.connect('mongodb://gardenu:gardenp@ds014368.mlab.com:14368/garden');
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => console.log('Connected to MLab') );
 var Schema = mongoose.Schema;
 
 var UserSchema = new Schema({
@@ -17,11 +12,12 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
-    plots: [{ type: Schema.Types.ObjectId, ref: 'Plot' }],
-    inventory: [{ type: Schema.Types.ObjectId, ref: 'Item' }]
+    plots: [PlotSchema],
+    inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
 });
 
 var PlotSchema = new Schema({
+	owner: { type: Schema.Types.ObjectId, ref: 'User' },
     crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
     growth: { type: Number, default: 0 },
     plantTime: { type: Date, default: Date.now }
