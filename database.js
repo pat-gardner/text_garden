@@ -1,13 +1,6 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-var PlotSchema = new Schema({
-	// owner: { type: Schema.Types.ObjectId, ref: 'User' },
-    crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
-    growth: { type: Number, default: 0 },
-    lastUpdated: { type: Date, default: Date.now }
-});
-
 var UserSchema = new Schema({
 	username: {
         type: String,
@@ -20,13 +13,15 @@ var UserSchema = new Schema({
         required: true
     },
     plots: [ { type: Schema.Types.ObjectId, ref: 'Plot' } ],
-    inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
+    inventory: [String] //Stores the chars the user has harvested
+    // inventory: [ { type: Schema.Types.ObjectId, ref: 'Item' } ]
 });
 
-var ItemSchema = new Schema ({
-    name: String,
-    image: String
-    //Properties?
+var PlotSchema = new Schema({
+	// owner: { type: Schema.Types.ObjectId, ref: 'User' },
+    crop: { type: Schema.Types.ObjectId, ref: 'Crop' },
+    growth: { type: Number, default: 0 },
+    lastUpdated: { type: Date, default: Date.now }
 });
 
 var CropSchema = new Schema({
@@ -34,6 +29,12 @@ var CropSchema = new Schema({
     images: [String],
     cooldown: Number, //time in ms
     rarity: { type: Number, default: 1} //TODO: figure this out
+});
+
+var ItemSchema = new Schema ({
+    name: String,
+    image: String
+    //Properties?
 });
 
 var User = mongoose.model('User', UserSchema);

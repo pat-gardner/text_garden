@@ -17,6 +17,7 @@ setInterval(growCrops, 1000);
 var app = express();
 
 app.set('port', 5000);
+
 const NUM_PLOTS = 9;
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,7 +41,6 @@ app.use(function(req, res, next) {
 */
 
 app.get('/api', (req, res) => {
-	//console.log('Got a request');
 	res.json( {msg: 'You reached the server'} );
 });
 
@@ -97,41 +97,93 @@ app.post('/createuser', function(req, res) {
 					}
 					req.session.user = req.body.user;
 					req.session.save();
-					console.log('Just saved ' + req.session.user);
+					// console.log('Just saved ' + req.session.user);
 					res.json({ message: 'User successfully added!' });
 				});
 			});
 		});
 	});
 });
+console.log(User.schema.tree);
+//User wants to harvest a letter
+//Check if they have a fully grown plot with that letter,
+//and then add it to their inventory
+app.post('/harvest', (req,res) => {
+	var username = req.session.user;
+	var cropName = req.body.cropName;
+	console.log('Harvesting ' + cropName + ' for ' + username);
+	if(username == null || cropName == null) {
+		res.json({status: false});
+		return;
+	}
 
+	User.findOne({username: username}, 'plots inventory')
+		.populate({
+			path: 'plots',
+			populate: {path: 'crop'}
+		})
+		.exec(function(err, user) {
+			console.log('user:');
+			console.log(user);
+			if(user == null) {
+				res.json({status: false});
+				return;
+			}
+			//Find a plot that contains the right crop
+			var matchingPlots = user.plots.filter(plot => {
+				return (plot.crop.name === cropName ) && (plot.growth === 2);
+			});
+			console.log('Matches: ');
+			console.log(matchingPlots);
+			if(matchingPlots.length === 0) {
+				res.json({status: false});
+				return;
+			}
+
+			Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
+				console.log('Removed plot for ' + user.username);
+				console.log('Plot was: ' + plot);
+				if(err) console.log('Err harvesting: ' + err);
+			});
+
+			user.inventory.push(cropName);
+			user.save();
+			res.json({status: true});
+		});
+});
 
 app.get('/updateGarden', (req, res) => {
 	var username = req.session.user;
-	console.log('Updating garden for user: ' + username);
+	// console.log('Updating garden for user: ' + username);
 	if (username == null) {
 		res.json({status: false});
 		return;
 	}
 
-	User.findOne({ username: username })
+	User.findOne({ username: username }, 'plots inventory')
 	.populate('inventory')
 	.populate({
 		path: 'plots',
 		populate: {path: 'crop'}
 	})
 	.exec(function(err, user) {
-		console.log(user);
 		if(user == null) {
 			res.json({status: false});
 		}
-		let result = user.plots.map( (plot, i) => {
-			// console.log(plot);
+		let images = user.plots.map( (plot, i) => {
 			return plot == null ? " " : plot.crop.images[plot.growth];
+		});
+		let names = user.plots.map( (plot, i) => {
+			return plot == null ? " " : plot.crop.name;
+		});
+		let growths = user.plots.map( (plot, i) => {
+			return plot == null ? 0 : plot.growth;
 		});
 		res.json({
 			status: true,
-			msg: result
+			images: images,
+			names: names,
+			growths: growths
 		});
 	});
 

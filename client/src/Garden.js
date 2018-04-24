@@ -8,7 +8,11 @@ const NUM_PLOTS = 9;
 class Garden extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { plots: Array(9).fill(" ") };
+        this.state = {
+            plots: Array(NUM_PLOTS).fill(" "),
+            names: Array(NUM_PLOTS).fill("empty"),
+            growths: Array(NUM_PLOTS).fill(0)
+        };
     }
 
     componentDidMount() {
@@ -22,12 +26,20 @@ class Garden extends React.Component {
         axios.get('/updateGarden')
             .then( (res) => {
                 if(res.data.status) {
-                    var arr = Array(NUM_PLOTS).fill(" ");
-                    res.data.msg.forEach( (item, i) => {
-                        arr[i] = item;
+                    //Make sure there are always NUM_PLOTS plots
+                    var plots = Array(NUM_PLOTS).fill(" ");
+                    var names = Array(NUM_PLOTS).fill("empty");
+                    var growths = Array(NUM_PLOTS).fill(0);
+                    for(let i = 0; i < NUM_PLOTS; i++) {
+                        plots[i] = res.data.images[i];
+                        names[i] = res.data.names[i];
+                        growths[i] = res.data.growths[i];
+                    }
+                    this.setState({
+                        plots: plots,
+                        names: names,
+                        growths: growths
                     });
-
-                    this.setState({ plots: arr });
                 }
             })
             .catch( (err) => {
@@ -35,10 +47,31 @@ class Garden extends React.Component {
             });
     }
 
-    render() {
-        const plots = this.state.plots.map((plot, i) => {
-            return (<Plot key={i} img={plot} />);
+    harvest(i, name) {
+        axios.post('/harvest', {
+            cropName: name
+        })
+        .then( (res) => {
+            //The request failed on the serverside
+            if(!res.data.status) {
+                return;
+            }
+            console.log('Harvest');
+            console.log(res.data);
         });
+    }
+
+    render() {
+        var plots = [];
+        for(let i = 0; i < NUM_PLOTS; i++) {
+            plots.push(<Plot key={i}
+                img={this.state.plots[i]}
+                // name={this.state.names[i]}
+                growth={this.state.growths[i]}
+                harvest={() => this.harvest(i, this.state.names[i])}
+            />);
+        }
+
         return (
             <div className='container'>
                 {plots}
