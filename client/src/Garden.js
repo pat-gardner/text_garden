@@ -33,7 +33,9 @@ class Garden extends React.Component {
             messages: [],
             inventory: [],
             seeds: [],
-            newMessagesNumber: 0
+            newMessagesNumber: 0,
+            money: 0,
+            username: ""
         };
     }
 
@@ -114,8 +116,10 @@ class Garden extends React.Component {
         axios.get('/getInv').then((res)=>{
             console.log('getinv');
             if(res.data.result){
-                this.setState({inventory: res.data.inventory.inventory});
-                this.setState({seeds: res.data.inventory.seeds})
+                this.setState({inventory: res.data.user.inventory});
+                this.setState({seeds: res.data.user.seeds});
+                this.setState({money: res.data.user.money});
+                this.setState({username: res.data.user.username})
             }
         }).catch( (err) => {
             console.log(err);
@@ -167,41 +171,46 @@ class Garden extends React.Component {
         }
 
         return (
-            <div className='container'>
-                {plots}
-                <button className="message" onClick={this.handleSendMessageButton}>
-                    buttonMessage
-                </button>
-                {this.state.displaySendMessage &&
-                    <MessageForm onSendMessageSubmit={ this.handleSendMessageSubmit }/>
-                }
-                {this.state.newMessagesNumber}
-                <button className="show_messages" onClick={this.handleShowMessages}>
-                    viewMessages
-                </button>
-                {this.state.displayViewMessage &&
-                    <MessageList data={ this.state.messages }/>
-                }
-                <button className="show_inv" onClick={this.handleShowInventory}>
-                    show inv
-                </button>
-                {this.state.displayShowInventory &&
-                  <h1> Letters </h1> &&
-                    <InventoryList data={ this.state.inventory }/>
-                }
-                <button className="seed_inv" onClick={this.handleSeedInventory}>
-                    show seeds
-                </button>
-                {this.state.displaySeedInventory &&
-                  <h1> Seeds </h1>&&
-                    <SeedInventoryList data={ this.state.seeds }/>
-                }
-                <button className="show_shop" onClick={this.handleShowShop}>
-                    Shop
-                </button>
-                {this.state.displayShop &&
-                    <ShopForm onShopSubmit={ this.handleShopSubmit }/>
-                }
+            <div>
+                <div>
+                    <h3> Welcome, {this.state.username}, you have {this.state.money} money </h3>
+                </div>
+                <div className='container'>
+                    {plots}
+                    <button className="message" onClick={this.handleSendMessageButton}>
+                        buttonMessage
+                    </button>
+                    {this.state.displaySendMessage &&
+                        <MessageForm onSendMessageSubmit={ this.handleSendMessageSubmit }/>
+                    }
+                    {this.state.newMessagesNumber}
+                    <button className="show_messages" onClick={this.handleShowMessages}>
+                        viewMessages
+                    </button>
+                    {this.state.displayViewMessage &&
+                        <MessageList data={ this.state.messages }/>
+                    }
+                    <button className="show_inv" onClick={this.handleShowInventory}>
+                        show inv
+                    </button>
+                    {this.state.displayShowInventory &&
+                      <h1> Letters </h1> &&
+                        <InventoryList data={ this.state.inventory }/>
+                    }
+                    <button className="seed_inv" onClick={this.handleSeedInventory}>
+                        show seeds
+                    </button>
+                    {this.state.displaySeedInventory &&
+                      <h1> Seeds </h1>&&
+                        <SeedInventoryList data={ this.state.seeds }/>
+                    }
+                    <button className="show_shop" onClick={this.handleShowShop}>
+                        Shop
+                    </button>
+                    {this.state.displayShop &&
+                        <ShopForm onShopSubmit={ this.handleShopSubmit }/>
+                    }
+                </div>
             </div>
         );
     }

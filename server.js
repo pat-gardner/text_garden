@@ -28,17 +28,6 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
-/*
-app.use(function(req, res, next) {
-res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-res.setHeader('Access-Control-Allow-Credentials', 'true');
-res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
-//and remove cacheing
-res.setHeader('Cache-Control', 'no-cache');
-next();
-});
-*/
 
 app.get('/api', (req, res) => {
     res.json( {msg: 'You reached the server'} );
@@ -60,7 +49,7 @@ app.post('/shop', function(req, res){
      var crop = req.body.letter;
      var amt = parseInt(req.body.amount);
      var username = req.session.user;
-     console.log(type + ' ' + amt + ' of ' + crop);
+     // console.log(type + ' ' + amt + ' of ' + crop);
      if(username == null || type == null || crop == null || amt == null){
          res.json({status:false});
          return;
@@ -70,16 +59,13 @@ app.post('/shop', function(req, res){
              res.json({status: false});
              return;
          }
-         // console.log(user);
          if(type === 'buy') {
              const cost = amt * 2; //Crops cost 2
              //Validate their request
-             console.log(!/^[A-Z]$/.test(crop));
              if(user.money < cost || !/^[A-Z]$/.test(crop)) {
                  res.json({status: false});
                  return;
              }
-             console.log('cost: ' + cost);
              user.money -= cost;
              user.seeds[crop] += amt;
              user.markModified('seeds');
@@ -141,28 +127,27 @@ app.post('/getuser', function(req, res) {
 
 app.post('/sendMessage', function(req, res){
     if(req.session.user === null || req.session.user === undefined){
-        console.log('not logged in');
+        // console.log('not logged in');
+        return;
+    }
+    if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
+        var message = new Message({
+            sender: req.session.user,
+            target: req.body.target,
+            message: req.body.message.toUpperCase(),
+            unread: true
+        });
+        message.save(function(err) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+                return;
+            }
+            res.json({ message: 'Message successfully added!' });
+        });
     }
     else{
-        if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
-            var message = new Message({
-                sender: req.session.user,
-                target: req.body.target,
-                message: req.body.message.toUpperCase(),
-                unread: true
-            });
-            message.save(function(err) {
-                if (err) {
-                    console.log(err);
-                    res.send(err);
-                    return;
-                }
-                res.json({ message: 'Message successfully added!' });
-            });
-        }
-        else{
-            console.log('invalid message');
-        }
+        console.log('invalid message');
     }
 });
 
@@ -187,7 +172,7 @@ app.get('/getMessages', function(req, res){
 });
 
 app.post('/checkLoggedIn', function(req, res){
-    console.log('user' + req.session.user)
+    // console.log('user' + req.session.user)
     if(req.session.user === null || req.session.user === undefined){
         res.send({"result": false});
     }
@@ -199,7 +184,7 @@ app.post('/checkLoggedIn', function(req, res){
 app.post('/logout', function(req, res){
     req.session.user = null;
     req.session.save();
-    console.log('logout');
+    // console.log('logout');
 });
 
 app.post('/createuser', function(req, res) {
@@ -230,28 +215,31 @@ app.post('/createuser', function(req, res) {
                 req.session.save();
                 // console.log('Just saved ' + req.session.user);
                 res.send({"invalid":false });
-                console.log('User successfully added!' );
+                // console.log('User successfully added!' );
             });
         });
     });
 });
 
-app.get('/getInv', (req, res)=>{
+app.get('/getInv', (req, res) => {
     if(req.session.user == null){
         console.log('not logged in');
         res.send({'result': false});
         return;
     }
-    User.findOne({'username': req.session.user}, 'inventory seeds', function(err, inventory) {
+    User.findOne({'username': req.session.user}, 'inventory seeds money username -_id', function(err, user) {
         if (err) {
             res.send(err);
             return;
         }
-        if(inventory == null) {
+        if(user == null) {
             res.send({'result': false});
             return;
         }
-        res.send({'result': true, 'inventory':inventory});
+        res.send({
+            'result': true,
+            'user':user
+        });
     })
 })
 
@@ -262,7 +250,7 @@ app.post('/harvest', (req,res) => {
     var username = req.session.user;
     var cropName = req.body.cropName;
     var plotNum = req.body.plotNumber;
-    console.log('Harvesting ' + cropName + ' (' + plotNum + ') for ' + username);
+    // console.log('Harvesting ' + cropName + ' (' + plotNum + ') for ' + username);
     if(username == null || cropName == null || plotNum == null) {
         res.json({status: false});
         return;
@@ -312,7 +300,7 @@ app.post('/plant', (req, res) => {
     var username = req.session.user;
     var seedName = req.body.seedName;
     var plotNum = req.body.plotNumber;
-    console.log('Planting ' + seedName + ' (' + plotNum + ') for ' + username);
+    // console.log('Planting ' + seedName + ' (' + plotNum + ') for ' + username);
     if(username == null || seedName == null || plotNum == null) {
         res.json({status: false});
         return;
