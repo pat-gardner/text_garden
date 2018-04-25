@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "node server.js",
+    "server": "nodemon server.js",
     "client": "cd client && npm start"
   },
   "repository": {
@@ -26,8 +26,10 @@
     "babel-core": "^6.26.0",
     "bcrypt": "^2.0.1",
     "body-parser": "^1.18.2",
+    "dompurify": "^1.0.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
+    "marked": "^0.3.19",
     "mongoose": "^5.0.16"
   }
 }

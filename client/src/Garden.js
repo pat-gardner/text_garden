@@ -53,10 +53,10 @@ class Garden extends React.Component {
                     var plots = Array(NUM_PLOTS).fill(" ");
                     var names = Array(NUM_PLOTS).fill("empty");
                     var growths = Array(NUM_PLOTS).fill(0);
-                    for(let i = 0; i < NUM_PLOTS; i++) {
-                        plots[i] = res.data.images[i];
-                        names[i] = res.data.names[i];
-                        growths[i] = res.data.growths[i];
+                    for(let i = 0; i < res.data.names.length; i++) {
+                            plots[i] = res.data.images[i];
+                            names[i] = res.data.names[i];
+                            growths[i] = res.data.growths[i];
                     }
                     this.setState({
                         plots: plots,
@@ -85,9 +85,23 @@ class Garden extends React.Component {
             if(!res.data.status) {
                 return;
             }
-            console.log('Harvest');
-            console.log(res.data);
-        });
+            this.tick();
+        })
+        .catch( (err) => console.log(err) );
+    }
+
+    plant(i, seed) {
+        axios.post('/plant', {
+            seedName: 'A'
+        })
+        .then( (res) => {
+            //The request failed on the serverside
+            if(!res.data.status) {
+                return;
+            }
+            this.tick();
+        })
+        .catch( (err) => console.log(err) );
     }
 
     render() {
@@ -98,6 +112,7 @@ class Garden extends React.Component {
                 // name={this.state.names[i]}
                 growth={this.state.growths[i]}
                 harvest={() => this.harvest(i, this.state.names[i])}
+                plant={() => this.plant(i, this.state.names[i])}
             />);
         }
 

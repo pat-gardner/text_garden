@@ -21,7 +21,10 @@ class Plot extends React.Component {
     }
 
     handleClick(e) {
-        if(this.props.growth === 2) {
+        if(this.props.growth === 0 && this.props.img === " "){
+            this.props.plant();
+        }
+        else if(this.props.growth === 2) {
             this.props.harvest();
         }
     }
