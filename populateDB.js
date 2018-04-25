@@ -13,8 +13,7 @@ letters.forEach((letter) => {
 	const lower = letter.toLowerCase();
 	Crop.create({
 		name: letter,
-		images: ['. .\n. .', lower + ' ' + lower + '\n' + lower + ' ' + lower,
-	 				letter + ' ' + letter + '\n' + letter + ' ' + letter,],
+		images: ['. .\n. .', lower, letter],
 		cooldown: 3000
 	}, function(err,doc) {
 		if(err) console.log(err);
