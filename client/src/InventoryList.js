@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Inventory from './Inventory';
 import style from './style';
 
 const createDOMPurify = require('dompurify');

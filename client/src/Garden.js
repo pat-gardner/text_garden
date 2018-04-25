@@ -98,7 +98,8 @@ class Garden extends React.Component {
 
     harvest(i, name) {
         axios.post('/harvest', {
-            cropName: name
+            cropName: name,
+            plotNumber: i
         })
         .then( (res) => {
             //The request failed on the serverside
@@ -112,7 +113,8 @@ class Garden extends React.Component {
 
     plant(i, seed) {
         axios.post('/plant', {
-            seedName: 'A'
+            seedName: 'A',
+            plotNumber: i
         })
         .then( (res) => {
             //The request failed on the serverside
