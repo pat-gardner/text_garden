@@ -119,7 +119,8 @@ class Garden extends React.Component {
 
     harvest(i, name) {
         axios.post('/harvest', {
-            cropName: name
+            cropName: name,
+            plotNumber: i
         })
         .then( (res) => {
             //The request failed on the serverside
@@ -133,7 +134,8 @@ class Garden extends React.Component {
 
     plant(i, seed) {
         axios.post('/plant', {
-            seedName: 'A'
+            seedName: 'A',
+            plotNumber: i
         })
         .then( (res) => {
             //The request failed on the serverside
@@ -187,7 +189,7 @@ class Garden extends React.Component {
                 </button>
                 {this.state.displaySeedInventory &&
                   <h1> Seeds </h1>&&
-                    <SeedInventoryList data={ this.state.inventory }/>
+                    <SeedInventoryList data={ this.state.seeds }/>
                 }
                 <button className="show_shop" onClick={this.handleShowShop}>
                     Shop

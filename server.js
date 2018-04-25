@@ -157,45 +157,46 @@ app.post('/createuser', function(req, res) {
             var plot = new Plot({
                 crop: crop._id
             });
-            plot.save(function(err, plot) {
-                var user = new User({
-                    username: req.body.user,
-                    password: hash,
-                    plots: [plot._id]
-                });
-                user.save(function(err) {
-                    if (err) {
-                        console.log(err);
-                        return;
-                    }
-                    req.session.user = req.body.user;
-                    req.session.save();
-                    // console.log('Just saved ' + req.session.user);
-                    res.send({"invalid":false });
-                    console.log('User successfully added!' );
-                });
+            var user = new User({
+                username: req.body.user,
+                password: hash,
+                plots: [plot]
+            });
+            for(let i = 1; i < NUM_PLOTS; i++) {
+                user.plots.push({ crop: null}); //TODO: empty crop?
+            }
+            user.save(function(err) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                req.session.user = req.body.user;
+                req.session.save();
+                // console.log('Just saved ' + req.session.user);
+                res.send({"invalid":false });
+                console.log('User successfully added!' );
             });
         });
     });
 });
 
 app.get('/getInv', (req, res)=>{
-  if(req.session.user == null){
-    console.log('not logged in');
-    res.send({'result': false});
-    return;
-  }
-  User.findOne({'username': req.session.user}, 'inventory seeds', function(err, inventory) {
-    if (err) {
-      res.send(err);
-      return;
+    if(req.session.user == null){
+        console.log('not logged in');
+        res.send({'result': false});
+        return;
     }
-    if(inventory == null) {
-      res.send({'result': false});
-      return;
-    }
-    res.send({'result': true, 'inventory':inventory});
-  })
+    User.findOne({'username': req.session.user}, 'inventory seeds', function(err, inventory) {
+        if (err) {
+            res.send(err);
+            return;
+        }
+        if(inventory == null) {
+            res.send({'result': false});
+            return;
+        }
+        res.send({'result': true, 'inventory':inventory});
+    })
 })
 
 //User wants to harvest a letter
@@ -204,97 +205,91 @@ app.get('/getInv', (req, res)=>{
 app.post('/harvest', (req,res) => {
     var username = req.session.user;
     var cropName = req.body.cropName;
-    console.log('Harvesting ' + cropName + ' for ' + username);
-    if(username == null || cropName == null) {
+    var plotNum = req.body.plotNumber;
+    console.log('Harvesting ' + cropName + ' (' + plotNum + ') for ' + username);
+    if(username == null || cropName == null || plotNum == null) {
         res.json({status: false});
         return;
     }
 
     User.findOne({username: username}, 'plots inventory seeds')
-        .populate({
-            path: 'plots',
-            populate: {path: 'crop'}
-        })
-        .exec(function(err, user) {
-            // console.log('user:');
-            // console.log(user);
-            if(user == null) {
-                res.json({status: false});
+    .populate({
+        path: 'plots.crop',
+    })
+    .exec(function(err, user) {
+        // console.log('user:');
+        // console.log(user);
+        if(user == null) {
+            res.json({status: false});
+            return;
+        }
+
+        var ourPlot = user.plots[plotNum];
+        if(ourPlot.crop == null || ourPlot.growth < 2) {
+            res.json({status: false});
+            return;
+        }
+
+        user.plots[plotNum] = new Plot({crop: null});
+        user.markModified('plots');
+        //Add the crop to their inventory and remove the plot
+        user.inventory[cropName] += 1;
+        user.markModified('inventory');
+        //Add either 1 or 2 seeds of the matching type to their seed bank
+        const numSeeds = Math.floor(Math.random()*2 + 1);
+        user.seeds[cropName] += numSeeds;
+        user.markModified('seeds');
+
+        user.save(function(err,u) {
+            if(err) {
+                console.log(err);
                 return;
             }
-            if(user.plots.length >= NUM_PLOTS) {
-            }
-            //Find a plot that contains the right crop
-            var matchingPlots = user.plots.filter(plot => {
-                return (plot.crop.name === cropName ) && (plot.growth === 2);
-            });
-            if(matchingPlots.length === 0) {
-                res.json({status: false});
-                return;
-            }
-
-            //Add the crop to their inventory and remove the plot
-            user.inventory[cropName] += 1;
-            user.plots.pull(matchingPlots[0]._id);
-            user.markModified('inventory');
-            //Add either 1 or 2 seeds of the matching type to their seed bank
-            const numSeeds = Math.floor(Math.random()*2 + 1);
-            user.seeds[cropName] += numSeeds;
-            user.markModified('seeds');
-
-            user.save(function(err,u) {
-                if(err) {
-                    console.log(err);
-                    return;
-                }
-            });
-            res.json({status: true});
-});
+        });
+        res.json({status: true});
+    });
 });
 
 //User wants to plant new seeds. Check if they have the proper seeds and
-//less than NUM_PLOTS plots. If so, subtract one seed, and add a new plot
+//the selected plot is empty. If so, subtract one seed, and add a new plot
 app.post('/plant', (req, res) => {
     var username = req.session.user;
     var seedName = req.body.seedName;
-    console.log('Planting ' + seedName + ' for ' + username);
-    if(username == null || seedName == null) {
+    var plotNum = req.body.plotNumber;
+    console.log('Planting ' + seedName + ' (' + plotNum + ') for ' + username);
+    if(username == null || seedName == null || plotNum == null) {
         res.json({status: false});
         return;
     }
     User.findOne({username: username}, 'plots seeds')
-        .populate({
-            path: 'plots',
-            populate: {path: 'crop'}
-        })
-        .exec(function(err, user) {
-            if(user == null) {
-                res.json({status: false});
-                return;
-            }
-            if(user.plots.length === NUM_PLOTS || user.seeds[seedName] === 0) {
-                res.json({status: false});
-                return;
-            }
+    .populate({ path: 'plots.crop' })
+    .exec(function(err, user) {
+        if(user == null) {
+            res.json({status: false});
+            return;
+        }
+        console.log(user.plots[plotNum]);
+        //Validate their request
+        if(user.plots[plotNum].crop != null || user.seeds[seedName] === 0) {
+            res.json({status: false});
+            return;
+        }
 
-            Crop.findOne({name: seedName}, function(err, crop) {
-                Plot.create({crop: crop._id}, function(err, plot) {
-                    user.plots.push(plot._id);
-                    user.seeds[seedName] -= 1;
-                    user.markModified('seeds');
-                    user.save(function(err) {
-                        if(err) {
-                            console.log(err);
-                            res.json({status: false});
-                            return;
-                        }
-                        res.json({status: true});
-                    });
-                })
+        Crop.findOne({name: seedName}, function(err, crop) {
+            user.seeds[seedName] -= 1;
+            user.markModified('seeds');
+            user.plots[plotNum] = new Plot({crop: crop._id});
+            user.markModified('plots');
+            user.save(function(err) {
+                if(err) {
+                    console.log(err);
+                    res.json({status: false});
+                    return;
+                }
+                res.json({status: true});
             });
         });
-
-
+    });
 });
 
 app.get('/updateGarden', (req, res) => {
@@ -306,30 +301,29 @@ app.get('/updateGarden', (req, res) => {
     }
 
     User.findOne({ username: username }, 'plots inventory seeds')
-        .populate({
-            path: 'plots',
-            populate: {path: 'crop'}
-        })
-        .exec(function(err, user) {
-            if(user == null) {
-                res.json({status: false});
-            }
-            let images = user.plots.map( (plot, i) => {
-                return plot == null ? " " : plot.crop.images[plot.growth];
-            });
-            let names = user.plots.map( (plot, i) => {
-                return plot == null ? " " : plot.crop.name;
-            });
-            let growths = user.plots.map( (plot, i) => {
-                return plot == null ? 0 : plot.growth;
-            });
-            res.json({
-                status: true,
-                images: images,
-                names: names,
-                growths: growths
-            });
+    .populate({
+        path: 'plots.crop',
+    })
+    .exec(function(err, user) {
+        if(user == null) {
+            res.json({status: false});
+        }
+        let images = user.plots.map( (plot, i) => {
+            return plot.crop == null ? " " : plot.crop.images[plot.growth];
         });
+        let names = user.plots.map( (plot, i) => {
+            return plot.crop == null ? "empty" : plot.crop.name;
+        });
+        let growths = user.plots.map( (plot, i) => {
+            return plot.crop == null ? 0 : plot.growth;
+        });
+        res.json({
+            status: true,
+            images: images,
+            names: names,
+            growths: growths
+        });
+    });
 });
 
 

@@ -9,20 +9,28 @@ db.once('open', () => console.log('Connected to MLab') );
 
 //Check every plot if it's time for its crop to grow
 module.exports = function() {
-    Plot.find({})
-        .populate('crop')
-        .exec(function(err,plots) {
-            plots.forEach(function(plot) {
-                var lastUpdated = plot.lastUpdated.getTime();
-                var now = new Date();
-                console.log(plot.crop.cooldown);
-                console.log(now.getTime() - lastUpdated >= plot.crop.cooldown);
-                if(now.getTime() - lastUpdated >= plot.crop.cooldown && plot.growth < 2) {
-                    console.log('hey');
-                    plot.growth += 1;
-                    plot.lastUpdated = now;
-                    plot.save();
-                }
+    User.find({}, 'plots')
+        .populate({path: 'plots.crop'})
+        .exec(function(err,users) {
+            if(err || users.length === 0) {
+                console.log(err);
+                return;
+            }
+            users.forEach((user) => {
+                user.plots.filter((plot) => plot.crop != null)
+                    .forEach(function(plot) {
+                        // console.log(plot);
+                        var lastUpdated = plot.lastUpdated.getTime();
+                        var now = new Date();
+                        if(now.getTime() - lastUpdated >= plot.crop.cooldown && plot.growth < 2) {
+                            plot.growth += 1;
+                            plot.lastUpdated = now;
+                            user.markModified('plots');
+                            user.save(function(err) {
+                                if(err) console.log(err);
+                            });
+                        }
+                    });
             });
         });
 };

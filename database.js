@@ -26,7 +26,8 @@ var UserSchema = new Schema({
         type: String,
         required: true
     },
-    plots: [ { type: Schema.Types.ObjectId, ref: 'Plot' } ],
+    // plots: [ { type: Schema.Types.ObjectId, ref: 'Plot' } ],
+	plots: [PlotSchema],
     inventory: { type: Object, default: inventoryDefault }, //Stores the chars the user has harvested
 	seeds: { type: Object, default: inventoryDefault },
 	money: {type: Number, default: 2}
