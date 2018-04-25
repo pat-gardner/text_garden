@@ -77,6 +77,7 @@ app.post('/getuser', function(req, res) {
     });
   });
 });
+
 app.post('/sendMessage', function(req, res){
   if(req.session.user === null || req.session.user === undefined){
     console.log('not logged in');
@@ -110,6 +111,7 @@ app.get('/newMessages', function(req, res){
     res.send({'number':messages.length});
   });
 });
+
 app.get('/getMessages', function(req, res){
   Message.find({'target': req.session.user}, function(err, messages){
     if(err) {
@@ -118,6 +120,7 @@ app.get('/getMessages', function(req, res){
     res.send({'data':messages});
   });
 });
+
 app.post('/checkLoggedIn', function(req, res){
   console.log('user' + req.session.user)
   if(req.session.user === null || req.session.user === undefined){
@@ -127,11 +130,13 @@ app.post('/checkLoggedIn', function(req, res){
     res.send({"result": true});
   }
 });
+
 app.post('/logout', function(req, res){
   req.session.user = null;
   req.session.save();
   console.log('logout');
 });
+
 app.post('/createuser', function(req, res) {
   if(!/^[\w_\-]+$/.test(req.body.user)){
     res.send({"invalid":true });
@@ -164,88 +169,90 @@ app.post('/createuser', function(req, res) {
   }
 
 });
-console.log(User.schema.tree);
+
 //User wants to harvest a letter
 //Check if they have a fully grown plot with that letter,
 //and then add it to their inventory
 app.post('/harvest', (req,res) => {
-  var username = req.session.user;
-  var cropName = req.body.cropName;
-  console.log('Harvesting ' + cropName + ' for ' + username);
-  if(username == null || cropName == null) {
-    res.json({status: false});
-    return;
-  }
+	var username = req.session.user;
+	var cropName = req.body.cropName;
+	console.log('Harvesting ' + cropName + ' for ' + username);
+	if(username == null || cropName == null) {
+		res.json({status: false});
+		return;
+	}
 
-  User.findOne({username: username}, 'plots inventory')
-  .populate({
-    path: 'plots',
-    populate: {path: 'crop'}
-  })
-  .exec(function(err, user) {
-    console.log('user:');
-    console.log(user);
-    if(user == null) {
-      res.json({status: false});
-      return;
-    }
-    //Find a plot that contains the right crop
-    var matchingPlots = user.plots.filter(plot => {
-      return (plot.crop.name === cropName ) && (plot.growth === 2);
-    });
-    console.log('Matches: ');
-    console.log(matchingPlots);
-    if(matchingPlots.length === 0) {
-      res.json({status: false});
-      return;
-    }
+	User.findOne({username: username}, 'plots inventory')
+		.populate({
+			path: 'plots',
+			populate: {path: 'crop'}
+		})
+		.exec(function(err, user) {
+			console.log('user:');
+			console.log(user);
+			if(user == null) {
+				res.json({status: false});
+				return;
+			}
+			//Find a plot that contains the right crop
+			var matchingPlots = user.plots.filter(plot => {
+				return (plot.crop.name === cropName ) && (plot.growth === 2);
+			});
+			if(matchingPlots.length === 0) {
+				res.json({status: false});
+				return;
+			}
 
-    Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
-      console.log('Removed plot for ' + user.username);
-      console.log('Plot was: ' + plot);
-      if(err) console.log('Err harvesting: ' + err);
-    });
+			user.plots.pull(matchingPlots[0]._id);
 
-    user.inventory.push(cropName);
-    user.save();
-    res.json({status: true});
-  });
+			// Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
+			// 	console.log('Removed plot was: ' + plot);
+			// 	console.log('User is ' + user);
+			// 	if(err) {
+			// 		console.log('Err harvesting: ' + err);
+			// 		return;
+			// 	}
+			// });
+
+			user.inventory.push(cropName);
+			user.save();
+			res.json({status: true});
+		});
 });
 
 app.get('/updateGarden', (req, res) => {
-  var username = req.session.user;
-  // console.log('Updating garden for user: ' + username);
-  if (username == null) {
-    res.json({status: false});
-    return;
-  }
+	var username = req.session.user;
+	console.log('Updating garden for user: ' + username);
+	if (username == null) {
+		res.json({status: false});
+		return;
+	}
 
-  User.findOne({ username: username }, 'plots inventory')
-  .populate('inventory')
-  .populate({
-    path: 'plots',
-    populate: {path: 'crop'}
-  })
-  .exec(function(err, user) {
-    if(user == null) {
-      res.json({status: false});
-    }
-    let images = user.plots.map( (plot, i) => {
-      return plot == null ? " " : plot.crop.images[plot.growth];
-    });
-    let names = user.plots.map( (plot, i) => {
-      return plot == null ? " " : plot.crop.name;
-    });
-    let growths = user.plots.map( (plot, i) => {
-      return plot == null ? 0 : plot.growth;
-    });
-    res.json({
-      status: true,
-      images: images,
-      names: names,
-      growths: growths
-    });
-  });
+	User.findOne({ username: username }, 'plots inventory')
+	.populate({
+		path: 'plots',
+		populate: {path: 'crop'}
+	})
+	.exec(function(err, user) {
+		if(user == null) {
+			res.json({status: false});
+		}
+		let images = user.plots.map( (plot, i) => {
+			return plot == null ? " " : plot.crop.images[plot.growth];
+		});
+		let names = user.plots.map( (plot, i) => {
+			return plot == null ? " " : plot.crop.name;
+		});
+		let growths = user.plots.map( (plot, i) => {
+			return plot == null ? 0 : plot.growth;
+		});
+		res.json({
+			status: true,
+			images: images,
+			names: names,
+			growths: growths
+		});
+	});
 
 });
 
