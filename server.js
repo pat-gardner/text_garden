@@ -126,7 +126,6 @@ app.post('/getuser', function(req, res) {
 });
 
 app.post('/sendMessage', function(req, res){
-  console.log('sendmessage');
   var isValid = true;
   var test = 'hello';
   if(req.session.user === null || req.session.user === undefined){
@@ -135,19 +134,11 @@ app.post('/sendMessage', function(req, res){
   else{
     if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
       User.findOne({'username': req.session.user}, 'inventory', function(err, user) {
-        console.log('A_Z '+test);
-        console.log(user.inventory);
-        console.log(Object.keys(user.inventory));
         //for (var key in Object.keys(user.inventory)){
         Object.keys(user.inventory).every(function(key, i){
           let re = RegExp(key, 'gi');
           let reg = req.body.message.match(re);
-          console.log(key);
-          console.log(re);
-          console.log(reg);
           if(reg){
-            console.log('reg.length: '+reg.length);
-            console.log('user.inventory: '+user.inventory[key]);
             if(reg.length > user.inventory[key]){
               console.log('invalid message');
               res.send({'status':false});
@@ -155,7 +146,6 @@ app.post('/sendMessage', function(req, res){
               return false;
             }
             else{
-              console.log('valid');
               user.inventory[key] -= reg.length;
               user.markModified('inventory');
             }
@@ -164,9 +154,6 @@ app.post('/sendMessage', function(req, res){
         })
 
         if(isValid){
-          console.log(isValid);
-          console.log("message "+test);
-          test  = 'bye';
           var message = new Message({
             sender: req.session.user,
             target: req.body.target,
@@ -179,7 +166,7 @@ app.post('/sendMessage', function(req, res){
               res.send(err);
               return;
             }
-            //res.json({ message: 'Message successfully added!' });
+            res.send({'status':true});
           });
           user.save(function(err,u) {
             if(err) {
