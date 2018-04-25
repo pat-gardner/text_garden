@@ -185,50 +185,59 @@ class Garden extends React.Component {
         const banner = this.state.username === "" ?
             (<h3> Welcome to the farm </h3>) :
             (<h3> Welcome {this.state.username}, you have {this.state.money} money </h3>);
-
-        return (
+        if(this.state.username === ""){
+          return (
             <div>
-                <div>
-                    {banner}
-                </div>
-                <div className='container'>
-                    {plots}
-                    <button className="message" onClick={this.handleSendMessageButton}>
-                        buttonMessage
-                    </button>
-                    {this.state.displaySendMessage &&
-                        <MessageForm onSendMessageSubmit={ this.handleSendMessageSubmit }/>
-                    }
-                    {this.state.newMessagesNumber}
-                    <button className="show_messages" onClick={this.handleShowMessages}>
-                        viewMessages
-                    </button>
-                    {this.state.displayViewMessage &&
-                        <MessageList data={ this.state.messages }/>
-                    }
-                    <button className="show_inv" onClick={this.handleShowInventory}>
-                        show inv
-                    </button>
-                    {this.state.displayShowInventory &&
-                      <h1> Letters </h1> &&
-                        <InventoryList data={ this.state.inventory }/>
-                    }
-                    <button className="seed_inv" onClick={this.handleSeedInventory}>
-                        show seeds
-                    </button>
-                    {this.state.displaySeedInventory &&
-                      <h1> Seeds </h1>&&
-                        <SeedInventoryList data={ this.state.seeds }/>
-                    }
-                    <button className="show_shop" onClick={this.handleShowShop}>
-                        Shop
-                    </button>
-                    {this.state.displayShop &&
-                        <ShopForm onShopSubmit={ this.handleShopSubmit }/>
-                    }
-                </div>
+              {banner}
             </div>
-        );
+          );
+        }
+        else{
+          return (
+              <div>
+                  <div>
+                      {banner}
+                  </div>
+                  <div className='container'>
+                      {plots}
+                      <button className="message" onClick={this.handleSendMessageButton}>
+                          buttonMessage
+                      </button>
+                      {this.state.displaySendMessage &&
+                          <MessageForm onSendMessageSubmit={ this.handleSendMessageSubmit }/>
+                      }
+                      {this.state.newMessagesNumber}
+                      <button className="show_messages" onClick={this.handleShowMessages}>
+                          viewMessages
+                      </button>
+                      {this.state.displayViewMessage &&
+                          <MessageList data={ this.state.messages }/>
+                      }
+                      <button className="show_inv" onClick={this.handleShowInventory}>
+                          show inv
+                      </button>
+                      {this.state.displayShowInventory &&
+                        <h1> Letters </h1> &&
+                          <InventoryList data={ this.state.inventory }/>
+                      }
+                      <button className="seed_inv" onClick={this.handleSeedInventory}>
+                          show seeds
+                      </button>
+                      {this.state.displaySeedInventory &&
+                        <h1> Seeds </h1>&&
+                          <SeedInventoryList data={ this.state.seeds }/>
+                      }
+                      <button className="show_shop" onClick={this.handleShowShop}>
+                          Shop
+                      </button>
+                      {this.state.displayShop &&
+                          <ShopForm onShopSubmit={ this.handleShopSubmit }/>
+                      }
+                  </div>
+              </div>
+            );
+        }
+
     }
 }
 
