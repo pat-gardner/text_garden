@@ -41,6 +41,7 @@ class MessageForm extends Component {
       type='text'
       placeholder='Message'
       style={ style.loginFormPass}
+      pattern = "[a-zA-Z]+"
       value={ this.state.message }
       onChange={ this.handleMessageChange }/>
 
