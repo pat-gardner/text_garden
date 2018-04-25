@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import LoginForm from './LoginForm';
 import CreateUserForm from './CreateUserForm';
-import style from './style';
+// import style from './style';
 import axios from 'axios';
 
 class LoginControl extends Component {
