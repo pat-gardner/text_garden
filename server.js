@@ -46,7 +46,7 @@ app.get('/users', function(req, res) {
 
 app.post('/shop', function(req, res){
   var type = req.body.type;
-  var crop = req.body.letter;
+  var crop = req.body.letter.toUpperCase();
   var amt = parseInt(req.body.amount);
   var username = req.session.user;
   // console.log(type + ' ' + amt + ' of ' + crop);
@@ -59,10 +59,14 @@ app.post('/shop', function(req, res){
       res.json({status: false});
       return;
     }
+    if(!/^[A-Z]$/.test(crop)) {
+        res.json({status: false});
+        return;
+    }
     if(type === 'buy') {
       const cost = amt * 2; //Crops cost 2
       //Validate their request
-      if(user.money < cost || !/^[A-Z]$/.test(crop)) {
+      if(user.money < cost) {
         res.json({status: false});
         return;
       }
@@ -285,14 +289,18 @@ app.get('/getInv', (req, res) => {
 //and then add it to their inventory along with some seeds
 app.post('/harvest', (req,res) => {
   var username = req.session.user;
-  var cropName = req.body.cropName;
+  var cropName = req.body.cropName.toUpperCase();
   var plotNum = req.body.plotNumber;
   // console.log('Harvesting ' + cropName + ' (' + plotNum + ') for ' + username);
   if(username == null || cropName == null || plotNum == null) {
     res.json({status: false});
     return;
   }
-
+  //Single upper-case letter
+  if(!/^[A-Z]$/.test(cropName)) {
+      res.json({status: false});
+      return;
+  }
   User.findOne({username: username}, 'plots inventory seeds')
   .populate({
     path: 'plots.crop',
@@ -335,12 +343,17 @@ app.post('/harvest', (req,res) => {
 //the selected plot is empty. If so, subtract one seed, and add a new plot
 app.post('/plant', (req, res) => {
   var username = req.session.user;
-  var seedName = req.body.seedName;
+  var seedName = req.body.seedName.toUpperCase();
   var plotNum = req.body.plotNumber;
   // console.log('Planting ' + seedName + ' (' + plotNum + ') for ' + username);
   if(username == null || seedName == null || plotNum == null) {
     res.json({status: false});
     return;
+  }
+  //Single upper-case letter
+  if(!/^[A-Z]$/.test(seedName)) {
+      res.json({status: false});
+      return;
   }
   User.findOne({username: username}, 'plots seeds')
   .populate({ path: 'plots.crop' })
