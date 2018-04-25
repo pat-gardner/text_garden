@@ -57,6 +57,7 @@ app.post('/getuser', function(req, res) {
   User.findOne({'username': req.body.user}, function(err, user) {
     if (err) {
       res.send(err);
+      return;
     }
     if(user == null) {
       res.json({result: false});
@@ -173,6 +174,23 @@ app.post('/createuser', function(req, res) {
 //User wants to harvest a letter
 //Check if they have a fully grown plot with that letter,
 //and then add it to their inventory
+app.get('/getInv', (req, res)=>{
+  if(req.session.user === null || req.session.user === undefined){
+    console.log('not logged in');
+    return;
+  }
+  User.findOne({'username': req.session.user}, 'inventory', function(err, inventory) {
+    if (err) {
+      res.send(err);
+      return;
+    }
+    if(inventory == null) {
+      res.json({result: false});
+      return;
+    }
+    console.log(inventory);
+  })
+})
 app.post('/harvest', (req,res) => {
 	var username = req.session.user;
 	var cropName = req.body.cropName;
