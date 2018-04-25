@@ -48,6 +48,7 @@ app.get('/users', function(req, res) {
 	User.find(function(err, users) {
 		if (err) {
 			res.send(err);
+			return;
 		}
 		res.json(users)
 	});
@@ -57,6 +58,7 @@ app.post('/getuser', function(req, res) {
 	User.findOne({'username': req.body.user}, function(err, user) {
 		if (err) {
 			res.send(err);
+			return;
 		}
 		if(user == null) {
 			res.json({result: false});
@@ -91,8 +93,9 @@ app.post('/sendMessage', function(req, res){
     });
     message.save(function(err) {
 			if (err) {
-        console.log(err);
+        		console.log(err);
 				res.send(err);
+				return;
 			}
 			res.json({ message: 'Message successfully added!' });
 		});
@@ -102,6 +105,7 @@ app.get('/newMessages', function(req, res){
   Message.find({'target': req.session.user, 'unread':true}, function(err, messages){
     if(err) {
       res.send(err);
+	  return;
     }
     res.send({'number':messages.length});
   });
@@ -111,6 +115,7 @@ app.get('/getMessages', function(req, res){
   Message.find({'target': req.session.user}, function(err, messages){
     if(err) {
       res.send(err);
+	  return;
     }
     res.send({'data':messages});
   });
@@ -135,7 +140,7 @@ app.post('/logout', function(req, res){
 app.post('/createuser', function(req, res) {
 	//body parser lets us use the req.body
 	bcrypt.hash(req.body.pass, 10, function(err, hash) {
-		Crop.findOne({name: 'letterA'}).exec(function(err, crop) {
+		Crop.findOne({name: 'A'}).exec(function(err, crop) {
 			var plot = new Plot({
 				crop: crop._id
 			});
@@ -148,6 +153,7 @@ app.post('/createuser', function(req, res) {
 				user.save(function(err) {
 					if (err) {
 						res.send(err);
+						return;
 					}
 					req.session.user = req.body.user;
 					req.session.save();
@@ -177,8 +183,8 @@ app.post('/harvest', (req,res) => {
 			populate: {path: 'crop'}
 		})
 		.exec(function(err, user) {
-			console.log('user:');
-			console.log(user);
+			// console.log('user:');
+			// console.log(user);
 			if(user == null) {
 				res.json({status: false});
 				return;
@@ -191,27 +197,30 @@ app.post('/harvest', (req,res) => {
 				res.json({status: false});
 				return;
 			}
+			console.log(matchingPlots[0].crop.name);
+			console.log(user.inventory[matchingPlots[0].crop.name]);
+			console.log(user.inventory);
 
+			//Add the crop to their inventory and remove the plot
+			user.inventory[matchingPlots[0].crop.name] = 5;
+			console.log(user.inventory);
 			user.plots.pull(matchingPlots[0]._id);
-
-			// Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
-			// 	console.log('Removed plot was: ' + plot);
-			// 	console.log('User is ' + user);
-			// 	if(err) {
-			// 		console.log('Err harvesting: ' + err);
-			// 		return;
-			// 	}
-			// });
-
-			user.inventory.push(cropName);
-			user.save();
+			user.markModified('inventory');
+			user.save(function(err,u) {
+				if(err) {
+					console.log(err);
+					return;
+				}
+				console.log(u);
+			});
+			console.log(user.inventory);
 			res.json({status: true});
 		});
 });
 
 app.get('/updateGarden', (req, res) => {
 	var username = req.session.user;
-	console.log('Updating garden for user: ' + username);
+	// console.log('Updating garden for user: ' + username);
 	if (username == null) {
 		res.json({status: false});
 		return;
@@ -226,6 +235,7 @@ app.get('/updateGarden', (req, res) => {
 		if(user == null) {
 			res.json({status: false});
 		}
+		console.log(user.inventory['A']);
 		let images = user.plots.map( (plot, i) => {
 			return plot == null ? " " : plot.crop.images[plot.growth];
 		});
