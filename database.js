@@ -28,7 +28,8 @@ var UserSchema = new Schema({
     },
     plots: [ { type: Schema.Types.ObjectId, ref: 'Plot' } ],
     inventory: { type: Object, default: inventoryDefault }, //Stores the chars the user has harvested
-	seeds: { type: Object, default: inventoryDefault }
+	seeds: { type: Object, default: inventoryDefault },
+	money: {type: Number, default: 2}
 });
 
 
@@ -42,7 +43,7 @@ var CropSchema = new Schema({
     name: String,
     images: [String],
     cooldown: Number, //time in ms
-    rarity: { type: Number, default: 1} //TODO: figure this out
+    cost: { type: Number, default: 2}, //TODO: figure this out
 });
 
 var MessageSchema = new Schema({

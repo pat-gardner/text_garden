@@ -15,7 +15,10 @@ module.exports = function() {
             plots.forEach(function(plot) {
                 var lastUpdated = plot.lastUpdated.getTime();
                 var now = new Date();
+                console.log(plot.crop.cooldown);
+                console.log(now.getTime() - lastUpdated >= plot.crop.cooldown);
                 if(now.getTime() - lastUpdated >= plot.crop.cooldown && plot.growth < 2) {
+                    console.log('hey');
                     plot.growth += 1;
                     plot.lastUpdated = now;
                     plot.save();

@@ -106,6 +106,7 @@ app.post('/sendMessage', function(req, res){
         }
     }
 });
+
 app.get('/newMessages', function(req, res){
     Message.find({'target': req.session.user, 'unread':true}, function(err, messages){
         if(err) {
