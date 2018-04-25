@@ -6,22 +6,17 @@ var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', () => console.log('Connected to MLab') );
 
+const letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M',
+				'N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 
-
-Crop.create({ name: 'A', images: ['. .\n. .', 'a a\na a', 'A A\nA A'], cooldown: 3000 }, function(err, doc) {
-	if (err) {
-		console.log("There was an error");
-		console.log(err);
-	}
-});
-
-Crop.create({
-	name: 'Z',
-	images: ['. .\n. .', 'z z\nz z', 'Z Z\nZ Z'],
-	cooldown: 3000
-}, function(err, doc) {
-	if (err) {
-		console.log("There was an error");
-		console.log(err);
-	}
+letters.forEach((letter) => {
+	const lower = letter.toLowerCase();
+	Crop.create({
+		name: letter,
+		images: ['. .\n. .', lower + ' ' + lower + '\n' + lower + ' ' + lower,
+	 				letter + ' ' + letter + '\n' + letter + ' ' + letter,],
+		cooldown: 3000
+	}, function(err,doc) {
+		if(err) console.log(err);
+	});
 });

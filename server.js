@@ -28,17 +28,6 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
-/*
-app.use(function(req, res, next) {
-res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-res.setHeader('Access-Control-Allow-Credentials', 'true');
-res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
-//and remove cacheing
-res.setHeader('Cache-Control', 'no-cache');
-next();
-});
-*/
 
 app.get('/api', (req, res) => {
     res.json( {msg: 'You reached the server'} );
@@ -54,7 +43,60 @@ app.get('/users', function(req, res) {
     });
 });
 
+
 app.post('/shop', function(req, res){
+     var type = req.body.type;
+     var crop = req.body.letter;
+     var amt = parseInt(req.body.amount);
+     var username = req.session.user;
+     // console.log(type + ' ' + amt + ' of ' + crop);
+     if(username == null || type == null || crop == null || amt == null){
+         res.json({status:false});
+         return;
+     }
+     User.findOne({username: username}, 'inventory seeds money', function(err,user) {
+         if(user == null) {
+             res.json({status: false});
+             return;
+         }
+         if(type === 'buy') {
+             const cost = amt * 2; //Crops cost 2
+             //Validate their request
+             if(user.money < cost || !/^[A-Z]$/.test(crop)) {
+                 res.json({status: false});
+                 return;
+             }
+             user.money -= cost;
+             user.seeds[crop] += amt;
+             user.markModified('seeds');
+             user.save(function(err) {
+                 if(err) {
+                     console.log(err);
+                     res.json({status: false});
+                     return;
+                 }
+                 res.json({status: true});
+             });
+         }
+         else if(type === 'sell') {
+             if(user.inventory[crop] < amt) {
+                 res.json({status: false});
+                 return;
+             }
+             //Crops sell for 1
+             user.money += amt;
+             user.inventory[crop] -= amt;
+             user.markModified('inventory');
+             user.save(function(err) {
+                 if(err) {
+                     console.log(err);
+                     res.json({status: false});
+                     return;
+                 }
+                 res.json({status: true});
+             });
+         }
+    });
 
 });
 app.post('/getuser', function(req, res) {
@@ -85,30 +127,39 @@ app.post('/getuser', function(req, res) {
 
 app.post('/sendMessage', function(req, res){
     if(req.session.user === null || req.session.user === undefined){
-        console.log('not logged in');
+        // console.log('not logged in');
+        return;
+    }
+    if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
+        var message = new Message({
+            sender: req.session.user,
+            target: req.body.target,
+            message: req.body.message.toUpperCase(),
+            unread: true
+        });
+        message.save(function(err) {
+            if (err) {
+                console.log(err);
+                res.send(err);
+                return;
+            }
+            res.json({ message: 'Message successfully added!' });
+        });
     }
     else{
         if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
           User.findOne({'username': req.session.user}, 'inventory', function(err, user) {
-            console.log(user.inventory);
-            console.log(Object.keys(user.inventory));
             //for (var key in Object.keys(user.inventory)){
             Object.keys(user.inventory).every(function(key, i){
               let re = RegExp(key, 'gi');
               let reg = req.body.message.match(re);
-              console.log(key);
-              console.log(re);
-              console.log(reg);
               if(reg){
-                console.log('reg.length: '+reg.length);
-                console.log('user.inventory: '+user.inventory[key]);
                 if(reg.length > user.inventory[key]){
                   console.log('invalid message');
                   res.send({'status':false});
                   return false;
                 }
                 else{
-                  console.log('valid');
                   user.inventory[key] -= reg.length;
                   user.markModified('inventory');
                   return true;
@@ -165,7 +216,7 @@ app.get('/getMessages', function(req, res){
 });
 
 app.post('/checkLoggedIn', function(req, res){
-    console.log('user' + req.session.user)
+    // console.log('user' + req.session.user)
     if(req.session.user === null || req.session.user === undefined){
         res.send({"result": false});
     }
@@ -209,28 +260,31 @@ app.post('/createuser', function(req, res) {
                 req.session.save();
                 // console.log('Just saved ' + req.session.user);
                 res.send({"invalid":false });
-                console.log('User successfully added!' );
+                // console.log('User successfully added!' );
             });
         });
     });
 });
 
-app.get('/getInv', (req, res)=>{
+app.get('/getInv', (req, res) => {
     if(req.session.user == null){
         console.log('not logged in');
         res.send({'result': false});
         return;
     }
-    User.findOne({'username': req.session.user}, 'inventory seeds', function(err, inventory) {
+    User.findOne({'username': req.session.user}, 'inventory seeds money username -_id', function(err, user) {
         if (err) {
             res.send(err);
             return;
         }
-        if(inventory == null) {
+        if(user == null) {
             res.send({'result': false});
             return;
         }
-        res.send({'result': true, 'inventory':inventory});
+        res.send({
+            'result': true,
+            'user':user
+        });
     })
 })
 
@@ -241,7 +295,7 @@ app.post('/harvest', (req,res) => {
     var username = req.session.user;
     var cropName = req.body.cropName;
     var plotNum = req.body.plotNumber;
-    console.log('Harvesting ' + cropName + ' (' + plotNum + ') for ' + username);
+    // console.log('Harvesting ' + cropName + ' (' + plotNum + ') for ' + username);
     if(username == null || cropName == null || plotNum == null) {
         res.json({status: false});
         return;
@@ -291,7 +345,7 @@ app.post('/plant', (req, res) => {
     var username = req.session.user;
     var seedName = req.body.seedName;
     var plotNum = req.body.plotNumber;
-    console.log('Planting ' + seedName + ' (' + plotNum + ') for ' + username);
+    // console.log('Planting ' + seedName + ' (' + plotNum + ') for ' + username);
     if(username == null || seedName == null || plotNum == null) {
         res.json({status: false});
         return;
@@ -303,7 +357,7 @@ app.post('/plant', (req, res) => {
             res.json({status: false});
             return;
         }
-        console.log(user.plots[plotNum]);
+        // console.log(user.plots[plotNum]);
         //Validate their request
         if(user.plots[plotNum].crop != null || user.seeds[seedName] === 0) {
             res.json({status: false});
