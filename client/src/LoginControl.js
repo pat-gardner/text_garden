@@ -50,6 +50,9 @@ class LoginControl extends Component {
       if(res.data.invalid){
         alert('Invalid Username');
       }
+      else if(!res.data.status){
+          alert('That username is taken');
+      }
       else{
         this.setState ({isLoggedIn: true});
       }

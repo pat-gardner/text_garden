@@ -43,7 +43,6 @@ app.get('/users', function(req, res) {
   });
 });
 
-
 app.post('/shop', function(req, res){
   var type = req.body.type;
   var crop = req.body.letter.toUpperCase();
@@ -253,12 +252,13 @@ app.post('/createuser', function(req, res) {
       user.save(function(err) {
         if (err) {
           console.log(err);
+          res.json({status: false});
           return;
         }
         req.session.user = req.body.user;
         req.session.save();
         // console.log('Just saved ' + req.session.user);
-        res.send({"invalid":false });
+        res.send({status: true, "invalid":false });
         // console.log('User successfully added!' );
       });
     });
