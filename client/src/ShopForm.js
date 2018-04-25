@@ -33,7 +33,7 @@ class ShopForm extends Component {
       alert('fail');
       return;
     }
-    this.props.onShopSubmit({ type: type, letter: letter, amount:amount });
+    this.props.onShopSubmit({ type: type, letter: letter, amount: amount });
     this.setState({ type: '', letter: '', amount: '' });
   }
 

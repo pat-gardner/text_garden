@@ -49,17 +49,22 @@ class Garden extends React.Component {
     }
     handleSendMessageSubmit(data){
         this.setState({displaySendMessage: false});
-        axios.post('sendMessage',data);
+        axios.post('/sendMessage',data);
     }
-    handleShopSubmit(){
-      console.log('shop submit');
+    handleShopSubmit(data){
+        axios.post('/shop', data)
+            .then( (res) => {
+                //The request failed on the serverside
+                if(!res.data.status) {
+                    return;
+                }
+                this.tick();
+            })
+            .catch( (err) => console.log(err) );
     }
     handleShowMessages(){
         console.log('view');
         this.setState({displayViewMessage: !this.state.displayViewMessage});
-        // axios.get('getMessages').then((res)=>{
-        //   console.log(res);
-        // })
     }
     handleSeedInventory(){
       console.log('seed_inv');

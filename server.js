@@ -54,7 +54,63 @@ app.get('/users', function(req, res) {
     });
 });
 
+
 app.post('/shop', function(req, res){
+     var type = req.body.type;
+     var crop = req.body.letter;
+     var amt = parseInt(req.body.amount);
+     var username = req.session.user;
+     console.log(type + ' ' + amt + ' of ' + crop);
+     if(username == null || type == null || crop == null || amt == null){
+         res.json({status:false});
+         return;
+     }
+     User.findOne({username: username}, 'inventory seeds money', function(err,user) {
+         if(user == null) {
+             res.json({status: false});
+             return;
+         }
+         // console.log(user);
+         if(type === 'buy') {
+             const cost = amt * 2; //Crops cost 2
+             //Validate their request
+             console.log(!/^[A-Z]$/.test(crop));
+             if(user.money < cost || !/^[A-Z]$/.test(crop)) {
+                 res.json({status: false});
+                 return;
+             }
+             console.log('cost: ' + cost);
+             user.money -= cost;
+             user.seeds[crop] += amt;
+             user.markModified('seeds');
+             user.save(function(err) {
+                 if(err) {
+                     console.log(err);
+                     res.json({status: false});
+                     return;
+                 }
+                 res.json({status: true});
+             });
+         }
+         else if(type === 'sell') {
+             if(user.inventory[crop] < amt) {
+                 res.json({status: false});
+                 return;
+             }
+             //Crops sell for 1
+             user.money += amt;
+             user.inventory[crop] -= amt;
+             user.markModified('inventory');
+             user.save(function(err) {
+                 if(err) {
+                     console.log(err);
+                     res.json({status: false});
+                     return;
+                 }
+                 res.json({status: true});
+             });
+         }
+    });
 
 });
 app.post('/getuser', function(req, res) {
@@ -268,7 +324,7 @@ app.post('/plant', (req, res) => {
             res.json({status: false});
             return;
         }
-        console.log(user.plots[plotNum]);
+        // console.log(user.plots[plotNum]);
         //Validate their request
         if(user.plots[plotNum].crop != null || user.seeds[seedName] === 0) {
             res.json({status: false});
