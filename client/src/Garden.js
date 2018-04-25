@@ -182,10 +182,14 @@ class Garden extends React.Component {
             />);
         }
 
+        const banner = this.state.username === "" ?
+            (<h3> Welcome to the farm </h3>) :
+            (<h3> Welcome {this.state.username}, you have {this.state.money} money </h3>);
+
         return (
             <div>
                 <div>
-                    <h3> Welcome, {this.state.username}, you have {this.state.money} money </h3>
+                    {banner}
                 </div>
                 <div className='container'>
                     {plots}

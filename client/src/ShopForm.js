@@ -34,7 +34,7 @@ class ShopForm extends Component {
       return;
     }
     this.props.onShopSubmit({ type: type, letter: letter, amount: amount });
-    this.setState({ type: '', letter: '', amount: '' });
+    this.setState({ letter: '', amount: '' });
   }
 
   render() {

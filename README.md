@@ -23,6 +23,3 @@ Rubric:
     * Databases secure, good schema
 * Users can interact with other users (15 pts)
 
-reselect buy/sell
-attach welcome to login
-to upper for crop form - lower doesn't decrement
