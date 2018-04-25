@@ -13,8 +13,10 @@ class SeedInventoryList extends Component {
       )
     })
     return (
-      <div style={ style.messageList }>
-      { inventoryNodes }
+      <div style={ style.itemList }>
+          <strong> Seeds </strong>
+            <hr />
+            { inventoryNodes }
       </div>
     )
   }

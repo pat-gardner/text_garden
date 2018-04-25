@@ -40,7 +40,9 @@ class LoginControl extends Component {
   handleLogout(){
     console.log('logout');
     axios.post(this.props.url+'logout');
-    this.setState({isLoggedIn: false});
+    this.setState({
+        isLoggedIn: false
+    });
   }
   handleCreateUserSubmit(data) {
     axios.post(this.props.url+'createuser', data)

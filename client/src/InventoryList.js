@@ -13,8 +13,11 @@ class InventoryList extends Component {
       )
     })
     return (
-      <div style={ style.messageList }>
-      { inventoryNodes }
+
+      <div style={ style.itemList }>
+          <strong> Letters </strong>
+          <hr />
+          { inventoryNodes }
       </div>
     )
   }

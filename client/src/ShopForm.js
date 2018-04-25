@@ -39,7 +39,7 @@ class ShopForm extends Component {
 
   render() {
     return (
-      <form style={ style.loginForm } onSubmit={ this.handleSubmit }>
+      <form style={ style.shopForm } onSubmit={ this.handleSubmit }>
       <input
       type='radio'
       name="type"
@@ -56,14 +56,14 @@ class ShopForm extends Component {
       type='text'
       maxLength="1"
       placeholder='A'
-      style={ style.loginFormPass}
+      style={ style.shopFormUser}
       value={ this.state.letter }
       onChange={ this.handleLetterChange }/>
 
       <input
       type='number'
       placeholder='1'
-      style={ style.loginFormPass}
+      style={ style.shopFormUser}
       value={ this.state.amount }
       onChange={ this.handleAmountChange }/>
 

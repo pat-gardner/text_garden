@@ -1,48 +1,51 @@
-/*.App {
-  text-align: center;
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
-}
-
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
-}
-
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-*/
-
 .container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
     margin: auto;
-    width: 25vw;
-    height: 25vw;
+    width: 90%;
+    /* height: ; */
+}
+
+.garden-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 250px;
+    height: 250px;
+}
+
+containter > div {
+    margin: 5px;
 }
 
 .plot {
     flex: 0 0 30%;
     height: 30%;
     margin-bottom: 5px;
+    margin-right: 5px;
     /* background-color: #990000; */
     border: 1px solid black;
     text-align: center;
     white-space: pre-line;
+}
+
+.msg-div {
+    width: 30%;
+    max-width: 30%;
+}
+
+.inv-div {
+    margin-left: 200px;
+    width: 15%;
+    max-width: 15%;
+}
+
+.shop-div {
+    width: 30%;
+    max-width: 30%;
+}
+
+.outside {
+    margin:auto;
+    max-width: 95%;
 }
