@@ -45,38 +45,39 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/users', function(req, res) {
-  User.find(function(err, users) {
-    if (err) {
-      res.send(err);
-    }
-    res.json(users)
-  });
+	User.find(function(err, users) {
+		if (err) {
+			res.send(err);
+			return;
+		}
+		res.json(users)
+	});
 });
 
 app.post('/getuser', function(req, res) {
-  User.findOne({'username': req.body.user}, function(err, user) {
-    if (err) {
-      res.send(err);
-      return;
-    }
-    if(user == null) {
-      res.json({result: false});
-      return;
-    }
-    bcrypt.compare(req.body.pass, user.password, function(err, result){
-      if(err) {
-        res.send({"result": false});
-      }
-      if(result){
-        res.send({"result": true});
-        req.session.user = req.body.user;
-        req.session.save();
-      }
-      else{
-        res.send({"result": false});
-      }
-    });
-  });
+	User.findOne({'username': req.body.user}, function(err, user) {
+		if (err) {
+			res.send(err);
+			return;
+		}
+		if(user == null) {
+			res.json({result: false});
+			return;
+		}
+		bcrypt.compare(req.body.pass, user.password, function(err, result){
+			if(err) {
+				res.send({"result": false});
+			}
+			if(result){
+				res.send({"result": true});
+				req.session.user = req.body.user;
+				req.session.save();
+			}
+			else{
+				res.send({"result": false});
+			}
+		});
+	});
 });
 
 app.post('/sendMessage', function(req, res){
@@ -95,6 +96,7 @@ app.post('/sendMessage', function(req, res){
         if (err) {
           console.log(err);
           res.send(err);
+          return;
         }
         res.json({ message: 'Message successfully added!' });
       });
@@ -108,6 +110,7 @@ app.get('/newMessages', function(req, res){
   Message.find({'target': req.session.user, 'unread':true}, function(err, messages){
     if(err) {
       res.send(err);
+	  return;
     }
     res.send({'number':messages.length});
   });
@@ -117,6 +120,7 @@ app.get('/getMessages', function(req, res){
   Message.find({'target': req.session.user}, function(err, messages){
     if(err) {
       res.send(err);
+	  return;
     }
     res.send({'data':messages});
   });
@@ -139,36 +143,36 @@ app.post('/logout', function(req, res){
 });
 
 app.post('/createuser', function(req, res) {
-  if(!/^[\w_\-]+$/.test(req.body.user)){
-    res.send({"invalid":true });
-  }
-  else{
-    bcrypt.hash(req.body.pass, 10, function(err, hash) {
-      Crop.findOne({name: 'A'}).exec(function(err, crop) {
-        var plot = new Plot({
-          crop: crop._id
-        });
-        plot.save(function(err, plot) {
-          var user = new User({
-            username: req.body.user,
-            password: hash,
-            plots: [plot._id]
-          });
-          user.save(function(err) {
-            if (err) {
-              res.send(err);
-            }
-            req.session.user = req.body.user;
-            req.session.save();
-            // console.log('Just saved ' + req.session.user);
-            res.send({"invalid":false });
-            console.log('User successfully added!' );
-          });
-        });
-      });
-    });
-  }
-
+    if(!/^[\w_\-]+$/.test(req.body.user)){
+      res.send({"invalid":true });
+      return;
+    }
+	//body parser lets us use the req.body
+	bcrypt.hash(req.body.pass, 10, function(err, hash) {
+		Crop.findOne({name: 'A'}).exec(function(err, crop) {
+			var plot = new Plot({
+				crop: crop._id
+			});
+			plot.save(function(err, plot) {
+				var user = new User({
+					username: req.body.user,
+					password: hash,
+					plots: [plot._id]
+				});
+				user.save(function(err) {
+					if (err) {
+						res.send(err);
+						return;
+					}
+					req.session.user = req.body.user;
+					req.session.save();
+					// console.log('Just saved ' + req.session.user);
+                    res.send({"invalid":false });
+                    console.log('User successfully added!' );
+				});
+			});
+		});
+	});
 });
 
 //User wants to harvest a letter
@@ -200,14 +204,14 @@ app.post('/harvest', (req,res) => {
 		return;
 	}
 
-	User.findOne({username: username}, 'plots inventory')
+	User.findOne({username: username}, 'plots inventory seeds')
 		.populate({
 			path: 'plots',
 			populate: {path: 'crop'}
 		})
 		.exec(function(err, user) {
-			console.log('user:');
-			console.log(user);
+			// console.log('user:');
+			// console.log(user);
 			if(user == null) {
 				res.json({status: false});
 				return;
@@ -221,32 +225,34 @@ app.post('/harvest', (req,res) => {
 				return;
 			}
 
+			//Add the crop to their inventory and remove the plot
+			user.inventory[cropName] += 1;
 			user.plots.pull(matchingPlots[0]._id);
+			user.markModified('inventory');
+            //Add either 1 or 2 seeds of the matching type to their seed bank
+            const numSeeds = Math.floor(Math.random()*2 + 1);
+            user.seeds[cropName] += numSeeds;
+            user.markModified('seeds');
 
-			// Plot.findByIdAndRemove(matchingPlots[0]._id, function(err, plot) {
-			// 	console.log('Removed plot was: ' + plot);
-			// 	console.log('User is ' + user);
-			// 	if(err) {
-			// 		console.log('Err harvesting: ' + err);
-			// 		return;
-			// 	}
-			// });
-
-			user.inventory.push(cropName);
-			user.save();
+			user.save(function(err,u) {
+				if(err) {
+					console.log(err);
+					return;
+				}
+			});
 			res.json({status: true});
 		});
 });
 
 app.get('/updateGarden', (req, res) => {
 	var username = req.session.user;
-	console.log('Updating garden for user: ' + username);
+	// console.log('Updating garden for user: ' + username);
 	if (username == null) {
 		res.json({status: false});
 		return;
 	}
 
-	User.findOne({ username: username }, 'plots inventory')
+	User.findOne({ username: username }, 'plots inventory seeds')
 	.populate({
 		path: 'plots',
 		populate: {path: 'crop'}
