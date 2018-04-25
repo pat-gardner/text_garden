@@ -23,25 +23,25 @@ const NUM_PLOTS = 9;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(session({
-	secret: 'a4f8071f-c873-4447-8ee2',
-	cookie: { maxAge: 3600*24*7, secure: false},
-	resave: false,
-	saveUninitialized: true
+  secret: 'a4f8071f-c873-4447-8ee2',
+  cookie: { maxAge: 3600*24*7, secure: false},
+  resave: false,
+  saveUninitialized: true
 }));
 /*
 app.use(function(req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
-  res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
-  //and remove cacheing
-  res.setHeader('Cache-Control', 'no-cache');
-  next();
+res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+res.setHeader('Access-Control-Allow-Credentials', 'true');
+res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
+res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
+//and remove cacheing
+res.setHeader('Cache-Control', 'no-cache');
+next();
 });
 */
 
 app.get('/api', (req, res) => {
-	res.json( {msg: 'You reached the server'} );
+  res.json( {msg: 'You reached the server'} );
 });
 
 app.get('/users', function(req, res) {
@@ -85,20 +85,25 @@ app.post('/sendMessage', function(req, res){
     console.log('not logged in');
   }
   else{
-    var message = new Message({
-      sender: req.session.user,
-      target: req.body.target,
-      message: req.body.message,
-      unread: true
-    });
-    message.save(function(err) {
-			if (err) {
-        		console.log(err);
-				res.send(err);
-				return;
-			}
-			res.json({ message: 'Message successfully added!' });
-		});
+    if(/^[A-Z]+$/.test(req.body.message.toUpperCase())){
+      var message = new Message({
+        sender: req.session.user,
+        target: req.body.target,
+        message: req.body.message.toUpperCase(),
+        unread: true
+      });
+      message.save(function(err) {
+        if (err) {
+          console.log(err);
+          res.send(err);
+          return;
+        }
+        res.json({ message: 'Message successfully added!' });
+      });
+    }
+    else{
+      console.log('invalid message');
+    }
   }
 });
 app.get('/newMessages', function(req, res){
@@ -138,6 +143,10 @@ app.post('/logout', function(req, res){
 });
 
 app.post('/createuser', function(req, res) {
+    if(!/^[\w_\-]+$/.test(req.body.user)){
+      res.send({"invalid":true });
+      return;
+    }
 	//body parser lets us use the req.body
 	bcrypt.hash(req.body.pass, 10, function(err, hash) {
 		Crop.findOne({name: 'A'}).exec(function(err, crop) {
@@ -158,7 +167,8 @@ app.post('/createuser', function(req, res) {
 					req.session.user = req.body.user;
 					req.session.save();
 					// console.log('Just saved ' + req.session.user);
-					res.json({ message: 'User successfully added!' });
+                    res.send({"invalid":false });
+                    console.log('User successfully added!' );
 				});
 			});
 		});

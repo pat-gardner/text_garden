@@ -37,11 +37,15 @@ class LoginControl extends Component {
     this.setState({isLoggedIn: false});
   }
   handleCreateUserSubmit(data) {
-    this.setState ({isLoggedIn: true});
     axios.post(this.props.url+'createuser', data)
-    .catch(err => {
-      console.error(err);
-    });
+    .then(res=>{
+      if(res.data.invalid){
+        alert('Invalid Username');
+      }
+      else{
+        this.setState ({isLoggedIn: true});
+      }
+    })
   }
   render() {
     if (this.state.isLoggedIn){
