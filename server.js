@@ -162,12 +162,7 @@ app.post('/sendMessage', function(req, res){
           }
           return true;
         })
-        user.save(function(err,u) {
-          if(err) {
-            console.log(err);
-            return;
-          }
-        });
+
         if(isValid){
           console.log(isValid);
           console.log("message "+test);
@@ -185,6 +180,12 @@ app.post('/sendMessage', function(req, res){
               return;
             }
             //res.json({ message: 'Message successfully added!' });
+          });
+          user.save(function(err,u) {
+            if(err) {
+              console.log(err);
+              return;
+            }
           });
         }
 
