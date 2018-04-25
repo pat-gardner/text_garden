@@ -4,6 +4,7 @@ import axios from 'axios'
 import './App.css';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
+import InventoryList from './InventoryList';
 
 const NUM_PLOTS = 9;
 
@@ -13,13 +14,14 @@ class Garden extends React.Component {
     this.handleSendMessageButton= this.handleSendMessageButton.bind(this);
     this.handleSendMessageSubmit= this.handleSendMessageSubmit.bind(this);
     this.handleShowMessages = this.handleShowMessages.bind(this);
-
+    this.handleShowInventory = this.handleShowInventory.bind(this);
     this.state = {
       plots: Array(NUM_PLOTS).fill(" "),
       names: Array(NUM_PLOTS).fill("empty"),
       growths: Array(NUM_PLOTS).fill(0),
       displaySendMessage: false,
       displayViewMessage: false,
+      displayShowInventory: false,
       messages: [],
       inventory: [],
       newMessagesNumber: 0
@@ -27,7 +29,8 @@ class Garden extends React.Component {
   }
 
   componentDidMount() {
-    this.timer = setInterval( () => this.tick(), 5000 );
+    this.timer = setInterval( () => this.tick(), 1000 );
+    this.tick();
   }
   componentWillUnmount() {
     clearInterval(this.timer);
@@ -45,6 +48,10 @@ class Garden extends React.Component {
     // axios.get('getMessages').then((res)=>{
     //   console.log(res);
     // })
+  }
+  handleShowInventory(){
+    console.log('show_inv');
+    this.setState({displayShowInventory: !this.state.displayShowInventory});
   }
   tick() {
     axios.get('/updateGarden')
@@ -71,14 +78,22 @@ class Garden extends React.Component {
     });
     axios.get('/newMessages').then((res)=>{
       this.setState({newMessagesNumber: res.data.number });
+    }).catch( (err) => {
+      console.log(err);
     });
     axios.get('/getMessages').then((res)=>{
-      this.setState({messages: res.data.data})
+      this.setState({messages: res.data.data});
+    }).catch( (err) => {
+      console.log(err);
     });
     axios.get('/getInv').then((res)=>{
       console.log('getinv');
-      //this.setState({inventory: res.data.})
-    })
+      if(res.data.result){
+        this.setState({inventory: res.data.inventory.inventory});
+      }
+    }).catch( (err) => {
+      console.log(err);
+    });
   }
 
   harvest(i, name) {
@@ -121,6 +136,12 @@ class Garden extends React.Component {
         </button>
         {this.state.displayViewMessage &&
           <MessageList data={ this.state.messages }/>
+        }
+        <button className="show_inv" onClick={this.handleShowInventory}>
+        show inv
+        </button>
+        {this.state.displayShowInventory &&
+          <InventoryList data={ this.state.inventory }/>
         }
         </div>
       );

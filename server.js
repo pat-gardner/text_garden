@@ -85,7 +85,7 @@ app.post('/sendMessage', function(req, res){
     console.log('not logged in');
   }
   else{
-    if(/^[A-Z]+$/.test(req.body.message.toUpperCase())){
+    if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
       var message = new Message({
         sender: req.session.user,
         target: req.body.target,
@@ -106,6 +106,7 @@ app.post('/sendMessage', function(req, res){
     }
   }
 });
+
 app.get('/newMessages', function(req, res){
   Message.find({'target': req.session.user, 'unread':true}, function(err, messages){
     if(err) {
@@ -179,8 +180,9 @@ app.post('/createuser', function(req, res) {
 //Check if they have a fully grown plot with that letter,
 //and then add it to their inventory
 app.get('/getInv', (req, res)=>{
-  if(req.session.user === null || req.session.user === undefined){
+  if(req.session.user == null){
     console.log('not logged in');
+    res.send({'result': false});
     return;
   }
   User.findOne({'username': req.session.user}, 'inventory', function(err, inventory) {
@@ -189,10 +191,10 @@ app.get('/getInv', (req, res)=>{
       return;
     }
     if(inventory == null) {
-      res.json({result: false});
+      res.send({'result': false});
       return;
     }
-    console.log(inventory);
+    res.send({'result': true, 'inventory':inventory});
   })
 })
 app.post('/harvest', (req,res) => {
