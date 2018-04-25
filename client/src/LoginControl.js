@@ -9,11 +9,15 @@ class LoginControl extends Component {
     super(props);
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this);
     this.handleCreateUserSubmit = this.handleCreateUserSubmit.bind(this);
+    this.handleCreateUserButton = this.handleCreateUserButton.bind(this);
     this.handleLogout = this.handleLogout.bind(this);
 
     axios.defaults.withCredentials = true;
 
-    this.state = {isLoggedIn: false};
+    this.state = {
+      isLoggedIn: false,
+      loginPrompt: true
+    };
   }
   componentDidMount() {
     axios.post(this.props.url+'checkLoggedIn').then(res=>{
@@ -30,7 +34,9 @@ class LoginControl extends Component {
       }
     })
   }
-
+  handleCreateUserButton(){
+    this.setState({loginPrompt: !this.state.loginPrompt});
+  }
   handleLogout(){
     console.log('logout');
     axios.post(this.props.url+'logout');
@@ -56,18 +62,29 @@ class LoginControl extends Component {
     );
     }
     else{
-      return (
-        <div>
-          <div>
-            <h1>Please log in</h1>
-            <LoginForm onLoginSubmit={ this.handleLoginSubmit }/>
-          </div>
+      if(this.state.loginPrompt){
+        return (
+            <div>
+              <h1>Please log in</h1>
+              <LoginForm onLoginSubmit={ this.handleLoginSubmit }/>
+              <button className="create_user" onClick={this.handleCreateUserButton}>
+                  Create an Account!
+              </button>
+            </div>
+          );
+      }
+      else{
+        return(
           <div>
             <h1>Create User</h1>
             <CreateUserForm onCreateUserSubmit={ this.handleCreateUserSubmit }/>
+            <button className="login_switch" onClick={this.handleCreateUserButton}>
+                Login to Pre-existing Account!
+            </button>
           </div>
-        </div>
-      );
+        );
+      }
+
     }
 
   }
