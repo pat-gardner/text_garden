@@ -49,3 +49,7 @@ containter > div {
     margin:auto;
     max-width: 95%;
 }
+
+.failedAttempt {
+    color: red;
+}

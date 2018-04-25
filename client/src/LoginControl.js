@@ -16,7 +16,8 @@ class LoginControl extends Component {
 
     this.state = {
       isLoggedIn: false,
-      loginPrompt: true
+      loginPrompt: true,
+      failedAttempt: false
     };
   }
   componentDidMount() {
@@ -32,10 +33,16 @@ class LoginControl extends Component {
         console.log('login succeed')
         this.setState ({isLoggedIn: true});
       }
+      else {
+          this.setState({failedAttempt: true})
+      }
     })
   }
   handleCreateUserButton(){
-    this.setState({loginPrompt: !this.state.loginPrompt});
+    this.setState({
+        loginPrompt: !this.state.loginPrompt,
+        failedAttempt: false
+    });
   }
   handleLogout(){
     console.log('logout');
@@ -48,10 +55,10 @@ class LoginControl extends Component {
     axios.post(this.props.url+'createuser', data)
     .then(res=>{
       if(res.data.invalid){
-        alert('Invalid Username');
+        this.setState({failedAttempt: true});
       }
       else if(!res.data.status){
-          alert('That username is taken');
+          this.setState({failedAttempt: true});
       }
       else{
         this.setState ({isLoggedIn: true});
@@ -75,6 +82,7 @@ class LoginControl extends Component {
               <button className="create_user" onClick={this.handleCreateUserButton}>
                   Create an Account!
               </button>
+              {this.state.failedAttempt && <p className='failedAttempt'> Login attempt failed </p>}
             </div>
           );
       }
@@ -86,6 +94,7 @@ class LoginControl extends Component {
             <button className="login_switch" onClick={this.handleCreateUserButton}>
                 Login to Pre-existing Account!
             </button>
+            {this.state.failedAttempt && <p className='failedAttempt'> User creation failed </p>}
           </div>
         );
       }
