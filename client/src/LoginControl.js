@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import LoginForm from './LoginForm';
 import CreateUserForm from './CreateUserForm';
+import './App.css';
 // import style from './style';
 import axios from 'axios';
 
@@ -66,7 +67,7 @@ class LoginControl extends Component {
     else{
       if(this.state.loginPrompt){
         return (
-            <div>
+            <div className='outside'>
               <h1>Please log in</h1>
               <LoginForm onLoginSubmit={ this.handleLoginSubmit }/>
               <button className="create_user" onClick={this.handleCreateUserButton}>
@@ -77,7 +78,7 @@ class LoginControl extends Component {
       }
       else{
         return(
-          <div>
+          <div className='outside'>
             <h1>Create User</h1>
             <CreateUserForm onCreateUserSubmit={ this.handleCreateUserSubmit }/>
             <button className="login_switch" onClick={this.handleCreateUserButton}>

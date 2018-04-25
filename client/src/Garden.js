@@ -54,6 +54,7 @@ class Garden extends React.Component {
         axios.post('sendMessage',data).then((res) => {
             //The request failed on the serverside
             if(!res.data.status) {
+                alert('Message not sent: '+res.data.message)
                 return;
             }
             this.tick();
@@ -111,6 +112,9 @@ class Garden extends React.Component {
                     names: names,
                     growths: growths
                 });
+            }
+            else{
+              this.setState({username: ""});
             }
         })
         .catch( (err) => {
@@ -193,7 +197,7 @@ class Garden extends React.Component {
             (<h3> Welcome {this.state.username}, you have {this.state.money} money </h3>);
         if(this.state.username === ""){
           return (
-            <div>
+            <div className='outside'>
               {banner}
             </div>
           );

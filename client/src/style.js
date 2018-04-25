@@ -1,14 +1,5 @@
 //style.js
 const style = {
-    commentBox: {
-        width:'80vw',
-        margin:'0 auto',
-        fontFamily:'Helvetica, sans-serif'
-    },
-    title: {
-        textAlign:'center',
-        textTransform:'uppercase'
-    },
     messageList: {
         border:'1px solid #f1f1f1',
         padding:'0 12px',
@@ -42,30 +33,6 @@ const style = {
         padding:'0 10px',
         height:'40px',
         borderRadius:'3px'
-    },
-    commentFormPost: {
-        minWidth:'75px',
-        flex:'1',
-        height:'40px',
-        margin:'5px 3px',
-        fontSize:'1rem',
-        backgroundColor:'#A3CDFD',
-        borderRadius:'3px',
-        color:'#fff',
-        textTransform:'uppercase',
-        letterSpacing:'.055rem',
-        border:'none'
-    },
-    updateLink: {
-        textDecoration:'none',
-        paddingRight:'15px',
-        fontSize:'.7rem'
-    },
-    deleteLink: {
-        textDecoration:'none',
-        paddingRight:'15px',
-        fontSize:'.7rem',
-        color:'red'
     },
     shopForm: {
         margin:'10px',

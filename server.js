@@ -147,7 +147,10 @@ app.post('/sendMessage', function(req, res){
           let reg = req.body.message.match(re);
           if(reg){
             if(reg.length > user.inventory[key]){
-              res.send({'status':false});
+              res.send({
+                'status':false,
+                'message':'Insufficient Letters'
+              });
               isValid = false;
               return false;
             }
@@ -189,7 +192,10 @@ app.post('/sendMessage', function(req, res){
     }
     else{
       console.log('invalid message');
-      res.send({'status': false});
+      res.send({
+        'status': false,
+        'message':'Invalid Message'
+      });
     }
   }
 });
