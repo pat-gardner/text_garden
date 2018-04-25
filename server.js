@@ -54,6 +54,9 @@ app.get('/users', function(req, res) {
     });
 });
 
+app.post('/shop', function(req, res){
+
+});
 app.post('/getuser', function(req, res) {
     User.findOne({'username': req.body.user}, function(err, user) {
         if (err) {
@@ -182,7 +185,7 @@ app.get('/getInv', (req, res)=>{
     res.send({'result': false});
     return;
   }
-  User.findOne({'username': req.session.user}, 'inventory', function(err, inventory) {
+  User.findOne({'username': req.session.user}, 'inventory seeds', function(err, inventory) {
     if (err) {
       res.send(err);
       return;
@@ -246,7 +249,7 @@ app.post('/harvest', (req,res) => {
                 }
             });
             res.json({status: true});
-        });
+});
 });
 
 //User wants to plant new seeds. Check if they have the proper seeds and

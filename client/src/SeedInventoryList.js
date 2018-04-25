@@ -6,7 +6,7 @@ const jsdom = require('jsdom').jsdom;
 const window = jsdom('').defaultView;
 const DOMPurify = createDOMPurify(window);
 
-class InventoryList extends Component {
+class SeedInventoryList extends Component {
   render() {
     var dict = this.props.data;
     let inventoryNodes = Object.keys(this.props.data).map(inventory => {
@@ -23,4 +23,4 @@ class InventoryList extends Component {
     )
   }
 }
-export default InventoryList;
+export default SeedInventoryList;

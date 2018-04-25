@@ -5,6 +5,8 @@ import './App.css';
 import MessageForm from './MessageForm';
 import MessageList from './MessageList';
 import InventoryList from './InventoryList';
+import SeedInventoryList from './SeedInventoryList';
+import ShopForm from './ShopForm'
 
 const NUM_PLOTS = 9;
 
@@ -13,8 +15,12 @@ class Garden extends React.Component {
         super(props);
         this.handleSendMessageButton= this.handleSendMessageButton.bind(this);
         this.handleSendMessageSubmit= this.handleSendMessageSubmit.bind(this);
+        this.handleShopSubmit = this.handleShopSubmit.bind(this);
         this.handleShowMessages = this.handleShowMessages.bind(this);
         this.handleShowInventory = this.handleShowInventory.bind(this);
+        this.handleSeedInventory = this.handleSeedInventory.bind(this);
+        this.handleShowShop = this.handleShowShop.bind(this);
+
         this.state = {
             plots: Array(NUM_PLOTS).fill(" "),
             names: Array(NUM_PLOTS).fill("empty"),
@@ -22,8 +28,11 @@ class Garden extends React.Component {
             displaySendMessage: false,
             displayViewMessage: false,
             displayShowInventory: false,
+            displaySeedInventory: false,
+            displayShop: false,
             messages: [],
             inventory: [],
+            seeds: [],
             newMessagesNumber: 0
         };
     }
@@ -42,6 +51,9 @@ class Garden extends React.Component {
         this.setState({displaySendMessage: false});
         axios.post('sendMessage',data);
     }
+    handleShopSubmit(){
+      console.log('shop submit');
+    }
     handleShowMessages(){
         console.log('view');
         this.setState({displayViewMessage: !this.state.displayViewMessage});
@@ -49,9 +61,17 @@ class Garden extends React.Component {
         //   console.log(res);
         // })
     }
+    handleSeedInventory(){
+      console.log('seed_inv');
+      this.setState({displaySeedInventory: !this.state.displaySeedInventory});
+    }
     handleShowInventory(){
         console.log('show_inv');
         this.setState({displayShowInventory: !this.state.displayShowInventory});
+    }
+    handleShowShop(){
+      console.log('show_shop');
+      this.setState({displayShop: !this.state.displayShop});
     }
     tick() {
         axios.get('/updateGarden')
@@ -90,6 +110,7 @@ class Garden extends React.Component {
             console.log('getinv');
             if(res.data.result){
                 this.setState({inventory: res.data.inventory.inventory});
+                this.setState({seeds: res.data.inventory.seeds})
             }
         }).catch( (err) => {
             console.log(err);
@@ -158,7 +179,21 @@ class Garden extends React.Component {
                     show inv
                 </button>
                 {this.state.displayShowInventory &&
+                  <h1> Letters </h1> &&
                     <InventoryList data={ this.state.inventory }/>
+                }
+                <button className="seed_inv" onClick={this.handleSeedInventory}>
+                    show seeds
+                </button>
+                {this.state.displaySeedInventory &&
+                  <h1> Seeds </h1>&&
+                    <SeedInventoryList data={ this.state.inventory }/>
+                }
+                <button className="show_shop" onClick={this.handleShowShop}>
+                    Shop
+                </button>
+                {this.state.displayShop &&
+                    <ShopForm onShopSubmit={ this.handleShopSubmit }/>
                 }
             </div>
         );
