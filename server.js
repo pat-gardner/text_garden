@@ -85,7 +85,7 @@ app.post('/sendMessage', function(req, res){
         console.log('not logged in');
     }
     else{
-        if(/^[A-Z]+$/.test(req.body.message.toUpperCase())){
+        if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
             var message = new Message({
                 sender: req.session.user,
                 target: req.body.target,
@@ -176,9 +176,28 @@ app.post('/createuser', function(req, res) {
     });
 });
 
+app.get('/getInv', (req, res)=>{
+  if(req.session.user == null){
+    console.log('not logged in');
+    res.send({'result': false});
+    return;
+  }
+  User.findOne({'username': req.session.user}, 'inventory', function(err, inventory) {
+    if (err) {
+      res.send(err);
+      return;
+    }
+    if(inventory == null) {
+      res.send({'result': false});
+      return;
+    }
+    res.send({'result': true, 'inventory':inventory});
+  })
+})
+
 //User wants to harvest a letter
 //Check if they have a fully grown plot with that letter,
-//and then add it to their inventory, along with some seeds for that letter
+//and then add it to their inventory along with some seeds
 app.post('/harvest', (req,res) => {
     var username = req.session.user;
     var cropName = req.body.cropName;

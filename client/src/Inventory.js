@@ -6,15 +6,15 @@ const jsdom = require('jsdom').jsdom;
 const window = jsdom('').defaultView;
 const DOMPurify = createDOMPurify(window);
 
-class Message extends Component {
+class Inventory extends Component {
  render() {
    const clean = DOMPurify.sanitize(this.props.children.toString());
  return (
  <div style={ style.message }>
- <h3>{this.props.sender}</h3>
+ <h3>{this.props}</h3>
  <p>{clean}</p>
  </div>
  )
  }
 }
-export default Message;
+export default Inventory;
