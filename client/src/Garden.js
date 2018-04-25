@@ -51,7 +51,7 @@ class Garden extends React.Component {
     }
     handleSendMessageSubmit(data){
         this.setState({displaySendMessage: false});
-        axios.post('sendMessage',data).then( (res) => {
+        axios.post('sendMessage',data).then((res) => {
             //The request failed on the serverside
             if(!res.data.status) {
                 return;
@@ -59,7 +59,7 @@ class Garden extends React.Component {
             this.tick();
         });
     }
-    handleShopSubmit(){
+    handleShopSubmit(data){
       axios.post('/shop', data)
           .then( (res) => {
               //The request failed on the serverside
