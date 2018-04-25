@@ -89,6 +89,39 @@ app.post('/sendMessage', function(req, res){
     }
     else{
         if(/^[A-Z ]+$/.test(req.body.message.toUpperCase())){
+          User.findOne({'username': req.session.user}, 'inventory', function(err, user) {
+            console.log(user.inventory);
+            console.log(Object.keys(user.inventory));
+            //for (var key in Object.keys(user.inventory)){
+            Object.keys(user.inventory).every(function(key, i){
+              let re = RegExp(key, 'gi');
+              let reg = req.body.message.match(re);
+              console.log(key);
+              console.log(re);
+              console.log(reg);
+              if(reg){
+                console.log('reg.length: '+reg.length);
+                console.log('user.inventory: '+user.inventory[key]);
+                if(reg.length > user.inventory[key]){
+                  console.log('invalid message');
+                  res.send({'status':false});
+                  return false;
+                }
+                else{
+                  console.log('valid');
+                  user.inventory[key] -= reg.length;
+                  user.markModified('inventory');
+                  return true;
+                }
+              }
+            })
+            user.save(function(err,u) {
+                if(err) {
+                    console.log(err);
+                    return;
+                }
+            });
+          })
             var message = new Message({
                 sender: req.session.user,
                 target: req.body.target,
@@ -106,6 +139,7 @@ app.post('/sendMessage', function(req, res){
         }
         else{
             console.log('invalid message');
+            res.send({'status': false});
         }
     }
 });
@@ -143,6 +177,7 @@ app.post('/checkLoggedIn', function(req, res){
 app.post('/logout', function(req, res){
     req.session.user = null;
     req.session.save();
+    res.send({'status':true});
     console.log('logout');
 });
 

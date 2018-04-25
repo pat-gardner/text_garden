@@ -49,10 +49,17 @@ class Garden extends React.Component {
     }
     handleSendMessageSubmit(data){
         this.setState({displaySendMessage: false});
-        axios.post('sendMessage',data);
+        axios.post('sendMessage',data).then( (res) => {
+            //The request failed on the serverside
+            if(!res.data.status) {
+                return;
+            }
+            this.tick();
+        });
     }
     handleShopSubmit(){
       console.log('shop submit');
+
     }
     handleShowMessages(){
         console.log('view');
@@ -133,8 +140,13 @@ class Garden extends React.Component {
     }
 
     plant(i, seed) {
+      var seedType = 'A';
+      function getSeedName() {
+         seedType = prompt("Please Select Seed to Plant", "A");
+      }
+      getSeedName();
         axios.post('/plant', {
-            seedName: 'A',
+            seedName: seedType,
             plotNumber: i
         })
         .then( (res) => {
