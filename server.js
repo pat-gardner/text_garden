@@ -187,7 +187,7 @@ app.post('/harvest', (req,res) => {
 		return;
 	}
 
-	User.findOne({username: username}, 'plots inventory')
+	User.findOne({username: username}, 'plots inventory seeds')
 		.populate({
 			path: 'plots',
 			populate: {path: 'crop'}
@@ -207,23 +207,22 @@ app.post('/harvest', (req,res) => {
 				res.json({status: false});
 				return;
 			}
-			console.log(matchingPlots[0].crop.name);
-			console.log(user.inventory[matchingPlots[0].crop.name]);
-			console.log(user.inventory);
 
 			//Add the crop to their inventory and remove the plot
-			user.inventory[matchingPlots[0].crop.name] = 5;
-			console.log(user.inventory);
+			user.inventory[cropName] += 1;
 			user.plots.pull(matchingPlots[0]._id);
 			user.markModified('inventory');
+            //Add either 1 or 2 seeds of the matching type to their seed bank
+            const numSeeds = Math.floor(Math.random()*2 + 1);
+            user.seeds[cropName] += numSeeds;
+            user.markModified('seeds');
+            
 			user.save(function(err,u) {
 				if(err) {
 					console.log(err);
 					return;
 				}
-				console.log(u);
 			});
-			console.log(user.inventory);
 			res.json({status: true});
 		});
 });
@@ -236,7 +235,7 @@ app.get('/updateGarden', (req, res) => {
 		return;
 	}
 
-	User.findOne({ username: username }, 'plots inventory')
+	User.findOne({ username: username }, 'plots inventory seeds')
 	.populate({
 		path: 'plots',
 		populate: {path: 'crop'}
@@ -245,7 +244,6 @@ app.get('/updateGarden', (req, res) => {
 		if(user == null) {
 			res.json({status: false});
 		}
-		console.log(user.inventory['A']);
 		let images = user.plots.map( (plot, i) => {
 			return plot == null ? " " : plot.crop.images[plot.growth];
 		});
