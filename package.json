@@ -19,7 +19,7 @@
   "homepage": "https://bitbucket.org/cse330/spring2018-cp-group-444217-448194#readme",
   "devDependencies": {
     "concurrently": "^3.5.1",
-    "nodemon": "^1.17.3"
+    "nodemon": "^1.18.10"
   },
   "dependencies": {
     "axios": "^0.18.0",
@@ -29,6 +29,7 @@
     "dompurify": "^1.0.3",
     "express": "^4.16.3",
     "express-session": "^1.15.6",
+    "jsdom": "^13.2.0",
     "marked": "^0.3.19",
     "mongoose": "^5.0.16"
   }

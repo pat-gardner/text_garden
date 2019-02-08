@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import style from './style';
 
 const createDOMPurify = require('dompurify');
-const jsdom = require('jsdom').jsdom;
-const window = jsdom('').defaultView;
+const {JSDOM} = require('jsdom');
+
+const window = (new JSDOM('')).window;
 const DOMPurify = createDOMPurify(window);
 
 class Message extends Component {

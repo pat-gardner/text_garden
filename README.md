@@ -1,6 +1,6 @@
 # Creative Module #
 
-Authors: Patrick Gardner (gardner.p@wustl.edu), Kevin Fu (fuze@wustl.edu)
+Authors: Patrick Gardner (pgardner.753@gmail.com), Kevin Fu (fuze@wustl.edu)
 
 Todd approved
 
